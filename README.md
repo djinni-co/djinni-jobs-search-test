@@ -104,3 +104,5 @@ cat dump.sql | docker exec -i <CONTAINER ID> psql --user admin djinni_sandbox
 Now open the http://0.0.0.0:8000 and you will see jobs list.
 
 Good to go! 👍👍
+
+![Djinni Jobs Sandbox](screenshot.png)
