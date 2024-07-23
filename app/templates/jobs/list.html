@@ -25,7 +25,7 @@
         <form method="GET">
           <div class="row">
             <div class="col-sm-6">
-              <input type="search" name="q" class="form-control" placeholder="Search jobs">
+              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
             </div>
             <div class="col-auto">
               <button type="submit" class="btn btn-primary">Search</button>
