@@ -12,11 +12,11 @@
 - по заголовку (position) та опису (long_description)
 - за ключовими словами, категорією (primary_keyword, secondary_keyword, extra_keywords)
 - за зарплатнею (salary_min, salary_max)
-- за видом роботи: Офіс/Віддалено
+- за видом роботи Офіс/Віддалено (remote_type)
 - за країною (country) та містом (location)
 - за рівнем англійської (english_level)
 - за роками досвіду (experience_years)
-- по назві компанії
+- по назві компанії (company.name)
 
 Вид/дизайн фронтендової форми пошуку - на ваш розсуд.
 
