@@ -1,4 +1,4 @@
-# Djinni test
+# Djinni test task
 
 ## Завдання
 
