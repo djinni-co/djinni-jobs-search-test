@@ -65,7 +65,7 @@ Bonus points за продумане відображення результат
 
 ```
 git clone git@github.com:djinni-co/djinni-jobs-search-test.git
-cd djinni-jobs-test
+cd djinni-jobs-search-test
 ```
 
 #### 2. Create the `.env` file:
