@@ -64,7 +64,7 @@ Bonus points за продумане відображення результат
 #### 1. Clone this repo
 
 ```
-git clone git@github.com:djinni-co/djinni-jobs-test.git
+git clone git@github.com:djinni-co/djinni-jobs-search-test.git
 cd djinni-jobs-test
 ```
 
