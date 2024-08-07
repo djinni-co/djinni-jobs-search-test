@@ -1,12 +1,10 @@
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.shortcuts import render
 
-from jobs.models import JobPosting, Company
+from jobs.models import JobPosting
+from jobs.utils import filter_by_query, filter_by_any_keywords, filter_by_exclude_keywords, paginate_jobs
 
 import random
 from django.db import transaction
-
-from django.db.models import Q
 
 
 def jobs_list(request):
@@ -19,45 +17,12 @@ def jobs_list(request):
     any_keywords = request.GET.get("any_keywords", "")
     exclude_keywords = request.GET.get("exclude_keywords", "")
 
-    if q:
-        if search_type == "position":
-            jobs = jobs.filter(position__icontains=q)
-        elif search_type == "long_description":
-            jobs = jobs.filter(long_description__icontains=q)
-        else:
-            jobs = jobs.filter(
-                Q(position__icontains=q) |
-                Q(long_description__icontains=q)
-            )
+    jobs = filter_by_query(jobs, q, search_type)
+    jobs = filter_by_any_keywords(jobs, any_keywords)
+    jobs = filter_by_exclude_keywords(jobs, exclude_keywords)
 
-    if any_keywords:
-        any_keywords_list = any_keywords.split()
-        any_keywords_q = Q()
-        for keyword in any_keywords_list:
-            any_keywords_q |= Q(position__icontains=keyword)
-        jobs = jobs.filter(any_keywords_q)
-
-    if exclude_keywords:
-        exclude_keywords_list = exclude_keywords.split()
-        exclude_keywords_q = Q()
-        for keyword in exclude_keywords_list:
-            exclude_keywords_q &= \
-                Q(position__icontains=keyword) | \
-                Q(long_description__icontains=keyword) | \
-                Q(primary_keyword__icontains=keyword) | \
-                Q(secondary_keyword__icontains=keyword) | \
-                Q(extra_keywords__icontains=keyword)
-        jobs = jobs.exclude(exclude_keywords_q)
-
-    page = int(request.GET.get("page", 1)) or 1
-    paginator = Paginator(jobs, JOBS_PER_PAGE)
-
-    try:
-        jobs_list = paginator.page(page)
-    except PageNotAnInteger:
-        jobs_list = paginator.page(1)
-    except EmptyPage:
-        jobs_list = paginator.page(paginator.num_pages)
+    page = request.GET.get("page", 1)
+    jobs_list, paginator = paginate_jobs(jobs, page, JOBS_PER_PAGE)
 
     return render(request, "jobs/list.html", {
         "jobs": jobs_list,
