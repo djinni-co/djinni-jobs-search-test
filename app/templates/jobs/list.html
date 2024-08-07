@@ -22,33 +22,34 @@
     <h1>Jobs on Djinni</h1>
   </header>
 
-  <div class="row">
+<div class="row">
     <div class="col-md-4">
       <form method="GET">
-        <div class="form-group">
-          <label for="q">All Keywords</label>
-          <input type="search" name="q" id="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
+        <div class="form-group mb-3">
+          {{ form.q.label_tag }}
+          {{ form.q }}
         </div>
 
-        <div class="form-group">
-          <div class="col-auto">
-            <input type="checkbox" name="position_only" id="position_only" {% if request.GET.position_only %}checked{% endif %}>
-            <label for="position_only">Position Only</label>
-        </div>
-        <div class="col-auto">
-            <input type="checkbox" name="description_only" id="description_only" {% if request.GET.description_only %}checked{% endif %}>
-            <label for="description_only">Description Only</label>
-        </div>
-        </div>
-
-        <div class="form-group">
-          <label for="any_keywords">Any of Keywords</label>
-          <input type="text" name="any_keywords" id="any_keywords" value="{{ request.GET.any_keywords }}" class="form-control" placeholder="Enter keywords separated by space">
+        <div class="form-group mb-3">
+          <label>Search Type</label><br>
+          <div class="form-check mb-2">
+            {{ form.search_position }}
+            {{ form.search_position.label_tag }}
+          </div>
+          <div class="form-check mb-2">
+            {{ form.search_long_description }}
+            {{ form.search_long_description.label_tag }}
+          </div>
         </div>
 
-        <div class="form-group">
-          <label for="exclude_keywords">Exclude Keywords</label>
-          <input type="text" name="exclude_keywords" id="exclude_keywords" value="{{ request.GET.exclude_keywords }}" class="form-control" placeholder="Enter keywords separated by space">
+        <div class="form-group mb-3">
+          {{ form.any_keywords.label_tag }}
+          {{ form.any_keywords }}
+        </div>
+
+        <div class="form-group mb-3">
+          {{ form.exclude_keywords.label_tag }}
+          {{ form.exclude_keywords }}
         </div>
 
         <button type="submit" class="btn btn-primary">Search</button>
@@ -81,7 +82,7 @@
           <ul class="pagination justify-content-center">
             {% if jobs.has_previous %}
               <li class="page-item">
-                <a class="page-link" href="?page={{ jobs.previous_page_number }}" aria-label="Previous">
+                <a class="page-link" href="?page={{ jobs.previous_page_number }}&{{ querystring }}" aria-label="Previous">
                   <span aria-hidden="true">&laquo;</span>
                 </a>
               </li>
@@ -100,14 +101,14 @@
                 </li>
               {% elif num > jobs.number|add:'-5' and num < jobs.number|add:'5' %}
                 <li class="page-item">
-                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                  <a class="page-link" href="?page={{ num }}&{{ querystring }}">{{ num }}</a>
                 </li>
               {% endif %}
             {% endfor %}
 
             {% if jobs.has_next %}
               <li class="page-item">
-                <a class="page-link" href="?page={{ jobs.next_page_number }}" aria-label="Next">
+                <a class="page-link" href="?page={{ jobs.next_page_number }}&{{ querystring }}" aria-label="Next">
                   <span aria-hidden="true">&raquo;</span>
                 </a>
               </li>
