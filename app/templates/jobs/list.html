@@ -2,110 +2,132 @@
 
 {% block content %}
 
-  <style>
-    .text-clamp {
-      display: -webkit-box;
-      -webkit-line-clamp: 5;
-      -webkit-box-orient: vertical;
-      line-height: 1.3rem;
-      height: calc(1.3rem * 5);
-      overflow: hidden;
-    }
+<style>
+  .text-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    line-height: 1.3rem;
+    height: calc(1.3rem * 5);
+    overflow: hidden;
+  }
 
-    .text-clamp * {
-      margin-bottom: 0;
-    }
-  </style>
+  .text-clamp * {
+    margin-bottom: 0;
+  }
+</style>
 
-  <div class="container">
-    <header class="pt-4 pb-4">
+<div class="container">
+  <header class="pt-4 pb-4">
+    <h1>Jobs on Djinni</h1>
+  </header>
 
-      <h1>Jobs on Djinni</h1>
-      <div class="mb-4">
-        <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </div>
-          </div>
-        </form>
-      </div>
-
-    </header>
-
-    <div id="jobs_list">
-      <div class="row">
-        <div class="col-sm-8">
-
-          {% for job in jobs %}
-            <div id="job_{{job.id}}" class="mb-5">
-              <h2 class="h4 text-primary">
-                {{ job.position }}
-                {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
-                {% endif %}
-                <small class="text-secondary">at {{ job.company.name }}</small>
-              </h2>
-              <div>
-                <div class="text-clamp">
-                  {{ job.long_description|safe }}
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-
+  <div class="row">
+    <div class="col-md-4">
+      <form method="GET">
+        <div class="form-group">
+          <label for="q">All Keywords</label>
+          <input type="search" name="q" id="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
         </div>
-      </div>
+
+        <div class="form-group">
+          <label>Search Type</label><br>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="search_type" id="search_position" value="position" {% if request.GET.search_type == 'position' %}checked{% endif %}>
+            <label class="form-check-label" for="search_position">
+              Search by Position
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="search_type" id="search_long_description" value="long_description" {% if request.GET.search_type == 'long_description' %}checked{% endif %}>
+            <label class="form-check-label" for="search_long_description">
+              Search by Long Description
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="any_keywords">Any of Keywords</label>
+          <input type="text" name="any_keywords" id="any_keywords" value="{{ request.GET.any_keywords }}" class="form-control" placeholder="Enter keywords separated by space">
+        </div>
+
+        <div class="form-group">
+          <label for="exclude_keywords">Exclude Keywords</label>
+          <input type="text" name="exclude_keywords" id="exclude_keywords" value="{{ request.GET.exclude_keywords }}" class="form-control" placeholder="Enter keywords separated by space">
+        </div>
+
+        <button type="submit" class="btn btn-primary">Search</button>
+      </form>
     </div>
 
-    <!-- Pagination -->
-    {% if is_paginated %}
-      <nav aria-label="Page navigation">
-        <ul class="pagination justify-content-center">
-          {% if jobs.has_previous %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ jobs.previous_page_number }}" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-              </a>
-            </li>
-          {% else %}
-            <li class="page-item disabled">
-              <a class="page-link" href="#" aria-label="Previous">
-                <span aria-hidden="true">&laquo;</span>
-              </a>
-            </li>
-          {% endif %}
+    <div class="col-md-8">
+      <div id="jobs_list">
+        {% for job in jobs %}
+          <div id="job_{{ job.id }}" class="mb-5">
+            <h2 class="h4 text-primary">
+              {{ job.position }}
+              {% if job.public_salary_max %}
+                <span class="text-success">to ${{ job.public_salary_max }}</span>
+              {% endif %}
+              <small class="text-secondary">at {{ job.company.name }}</small>
+            </h2>
+            <div>
+              <div class="text-clamp">
+                {{ job.long_description|safe }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
 
-          {% for num in jobs.paginator.page_range %}
-            {% if jobs.number == num %}
-              <li class="page-item active">
-                <a class="page-link" href="#">{{ num }}</a>
-              </li>
-            {% elif num > jobs.number|add:'-5' and num < jobs.number|add:'5' %}
+      <!-- Pagination -->
+      {% if is_paginated %}
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            {% if jobs.has_previous %}
               <li class="page-item">
-                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                <a class="page-link" href="?page={{ jobs.previous_page_number }}" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
               </li>
             {% endif %}
-          {% endfor %}
 
-          {% if jobs.has_next %}
-            <li class="page-item">
-              <a class="page-link" href="?page={{ jobs.next_page_number }}" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-              </a>
-            </li>
-          {% else %}
-            <li class="page-item disabled">
-              <a class="page-link" href="#" aria-label="Next">
-                <span aria-hidden="true">&raquo;</span>
-              </a>
-            </li>
-          {% endif %}
-        </ul>
-      </nav>
-    {% endif %}
+            {% for num in jobs.paginator.page_range %}
+              {% if jobs.number == num %}
+                <li class="page-item active">
+                  <a class="page-link" href="#">{{ num }}</a>
+                </li>
+              {% elif num > jobs.number|add:'-5' and num < jobs.number|add:'5' %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if jobs.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ jobs.next_page_number }}" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
+    </div>
   </div>
+</div>
+
 {% endblock content %}
