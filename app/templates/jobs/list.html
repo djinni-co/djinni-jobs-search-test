@@ -31,19 +31,14 @@
         </div>
 
         <div class="form-group">
-          <label>Search Type</label><br>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="search_type" id="search_position" value="position" {% if request.GET.search_type == 'position' %}checked{% endif %}>
-            <label class="form-check-label" for="search_position">
-              Search by Position
-            </label>
-          </div>
-          <div class="form-check">
-            <input class="form-check-input" type="radio" name="search_type" id="search_long_description" value="long_description" {% if request.GET.search_type == 'long_description' %}checked{% endif %}>
-            <label class="form-check-label" for="search_long_description">
-              Search by Long Description
-            </label>
-          </div>
+          <div class="col-auto">
+            <input type="checkbox" name="position_only" id="position_only" {% if request.GET.position_only %}checked{% endif %}>
+            <label for="position_only">Position Only</label>
+        </div>
+        <div class="col-auto">
+            <input type="checkbox" name="description_only" id="description_only" {% if request.GET.description_only %}checked{% endif %}>
+            <label for="description_only">Description Only</label>
+        </div>
         </div>
 
         <div class="form-group">

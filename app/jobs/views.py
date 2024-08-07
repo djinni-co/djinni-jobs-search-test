@@ -14,10 +14,12 @@ def jobs_list(request):
 
     q = request.GET.get("q", "")
     search_type = request.GET.get("search_type", "")
+    position_only = request.GET.get("position_only", "") == "on"
+    description_only = request.GET.get("description_only", "") == "on"
     any_keywords = request.GET.get("any_keywords", "")
     exclude_keywords = request.GET.get("exclude_keywords", "")
 
-    jobs = filter_by_query(jobs, q, search_type)
+    jobs = filter_by_query(jobs, q, position_only, description_only)
     jobs = filter_by_any_keywords(jobs, any_keywords)
     jobs = filter_by_exclude_keywords(jobs, exclude_keywords)
 

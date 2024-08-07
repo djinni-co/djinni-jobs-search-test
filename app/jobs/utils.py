@@ -7,17 +7,22 @@ import operator
 from django.db.models.query import QuerySet
 
 
-def filter_by_query(jobs: QuerySet, query, search_type: str) -> QuerySet:
+def filter_by_query(jobs: QuerySet, query, position_only: bool, description_only: bool) -> QuerySet:
     if query:
-        if search_type == "position":
-            jobs = jobs.filter(position__icontains=query)
-        elif search_type == "long_description":
-            jobs = jobs.filter(long_description__icontains=query)
-        else:
-            jobs = jobs.filter(
-                Q(position__icontains=query) |
-                Q(long_description__icontains=query)
-            )
+        jobs = jobs.filter(
+            Q(position__icontains=query) |
+            Q(long_description__icontains=query) |
+            Q(primary_keyword__icontains=query) |
+            Q(secondary_keyword__icontains=query) |
+            Q(extra_keywords__icontains=query)
+        )
+        query_filter = Q()
+        if position_only:
+            query_filter |= Q(position__icontains=query)
+        if description_only:
+            query_filter |= Q(long_description__icontains=query)
+        if position_only or description_only:
+            jobs = jobs.filter(query_filter)
     return jobs
 
 
