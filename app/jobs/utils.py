@@ -5,11 +5,12 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
 from functools import reduce
 import operator
 from django.db.models.query import QuerySet
+import re
 
 
 def filter_by_query(jobs: QuerySet, query: str, position_only: bool, description_only: bool) -> QuerySet:
     if query:
-        query_list = query.split()
+        query_list = re.split(r'[\W\s]+', query)
         query_list_q = reduce(operator.and_, [(
             Q(position__icontains=q) |
             Q(long_description__icontains=q) |
@@ -30,7 +31,7 @@ def filter_by_query(jobs: QuerySet, query: str, position_only: bool, description
 
 def filter_by_any_keywords(jobs: QuerySet, any_keywords: str) -> QuerySet:
     if any_keywords:
-        any_keywords_list = any_keywords.split()
+        any_keywords_list = re.split(r'[\W\s]+', any_keywords)
         any_keywords_q = reduce(operator.or_, [Q(position__icontains=keyword) for keyword in any_keywords_list])
         jobs = jobs.filter(any_keywords_q)
     return jobs
@@ -38,7 +39,7 @@ def filter_by_any_keywords(jobs: QuerySet, any_keywords: str) -> QuerySet:
 
 def filter_by_exclude_keywords(jobs: QuerySet, exclude_keywords: str) -> QuerySet:
     if exclude_keywords:
-        exclude_keywords_list = exclude_keywords.split()
+        exclude_keywords_list = re.split(r'[\W\s]+', exclude_keywords)
         exclude_keywords_q = reduce(operator.or_, [
             Q(position__icontains=keyword) |
             Q(long_description__icontains=keyword) |
