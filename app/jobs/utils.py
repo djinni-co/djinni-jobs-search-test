@@ -7,20 +7,22 @@ import operator
 from django.db.models.query import QuerySet
 
 
-def filter_by_query(jobs: QuerySet, query, position_only: bool, description_only: bool) -> QuerySet:
+def filter_by_query(jobs: QuerySet, query: str, position_only: bool, description_only: bool) -> QuerySet:
     if query:
-        jobs = jobs.filter(
-            Q(position__icontains=query) |
-            Q(long_description__icontains=query) |
-            Q(primary_keyword__icontains=query) |
-            Q(secondary_keyword__icontains=query) |
-            Q(extra_keywords__icontains=query)
-        )
+        query_list = query.split()
+        query_list_q = reduce(operator.and_, [(
+            Q(position__icontains=q) |
+            Q(long_description__icontains=q) |
+            Q(primary_keyword__icontains=q) |
+            Q(secondary_keyword__icontains=q) |
+            Q(extra_keywords__icontains=q)
+        ) for q in query_list])
+        jobs = jobs.filter(query_list_q)
         query_filter = Q()
         if position_only:
-            query_filter |= Q(position__icontains=query)
+            query_filter |= reduce(operator.and_, [Q(position__icontains=q) for q in query_list])
         if description_only:
-            query_filter |= Q(long_description__icontains=query)
+            query_filter |= reduce(operator.and_, [Q(long_description__icontains=q) for q in query_list])
         if position_only or description_only:
             jobs = jobs.filter(query_filter)
     return jobs
