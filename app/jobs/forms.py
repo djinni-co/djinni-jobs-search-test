@@ -2,6 +2,9 @@ from django import forms
 
 
 class JobFilterForm(forms.Form):
+    """
+    Construct initial form to filter jobs
+    """
     q = forms.CharField(
         required=False,
         label="All Keywords",
