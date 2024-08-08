@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+<style>
+  .custom-margin {
+    margin: 0 auto;
+    max-width: 800px;
+  }
+
+  .job-header {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+
+  .job-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .job-company {
+    font-size: 1rem;
+    color: #7f8c8d;
+    margin-left: 10px;
+  }
+
+  .job-salary {
+    font-size: 1.25rem;
+    color: #27ae60;
+  }
+
+  .job-description {
+    font-size: 1rem;
+    color: #34495e;
+    line-height: 1.6;
+  }
+
+  .text-clamp {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+  }
+
+  .read-more {
+    color: #2980b9;
+    cursor: pointer;
+    text-align: center;
+    display: block;
+    margin-top: 10px;
+  }
+
+  .job-content {
+    background-color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
+  }
+</style>
+
+{% block content %}
+  <div class="row justify-content-center">
+    <div class="col-sm-10 col-md-8 custom-margin">
+      <div class="job-header">
+        <h2 class="job-title">
+          {{ jobposting.position }}
+          {% if jobposting.public_salary_max %}
+            <span class="job-salary">to ${{ jobposting.public_salary_max }}</span>
+          {% endif %}
+          <small class="job-company">at {{ jobposting.company.name }}</small>
+        </h2>
+      </div>
+      <div class="job-content">
+        <div class="job-description text-clamp">
+          {{ jobposting.long_description }}
+        </div>
+        <div class="read-more">Read more</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.querySelector('.read-more').addEventListener('click', function() {
+      const textClamp = document.querySelector('.text-clamp');
+      textClamp.style.webkitLineClamp = 'unset';
+      this.style.display = 'none';
+    });
+  </script>
+
+{% endblock %}
