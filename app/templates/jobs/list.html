@@ -52,6 +52,15 @@
           {{ form.exclude_keywords }}
         </div>
 
+        <div class="form-group mb-3">
+          <div class="category-buttons">
+          {% for value, label in category_filter_form.category_choices %}
+              <button type="submit" name="selected_category" value="{{ value }}">
+                  {{ label }}
+              </button>
+          {% endfor %}
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary">Search</button>
       </form>
     </div>
