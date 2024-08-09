@@ -2,6 +2,7 @@ from typing import Tuple
 
 from django.db.models import Q
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
+from django import forms
 from functools import reduce
 import operator
 from django.db.models.query import QuerySet
@@ -11,9 +12,38 @@ import re
 def word_boundary_regex(word: str) -> str:
     """
     Create regular expression to find word boundary.
-    Using "\y" since we use PostgreSQL as db.
+    Using this type since we use PostgreSQL as db.
     """
     return r'\y{}\y'.format(re.escape(word))
+
+
+def q_form_handler(jobs: QuerySet, form: forms.Form) -> QuerySet:
+    """
+    Handle job postings filtering and return filtered jobs
+    """
+    q = form.cleaned_data.get("q")
+    search_position = form.cleaned_data.get("search_position")
+    search_long_description = form.cleaned_data.get("search_long_description")
+    any_keywords = form.cleaned_data.get("any_keywords")
+    exclude_keywords = form.cleaned_data.get("exclude_keywords")
+
+    jobs = filter_by_query(jobs, q, search_position, search_long_description)
+    jobs = filter_by_any_keywords(jobs, any_keywords)
+    jobs = filter_by_exclude_keywords(jobs, exclude_keywords)
+
+    return jobs
+
+
+def category_form_handler(jobs: QuerySet, form: forms.Form) -> Tuple[QuerySet, str]:
+    """
+    Handle job postings filtering by primary_keyword and return tuple containing
+    filtered job postings and selected category(needed for template rendering)
+    """
+    category = form.cleaned_data.get("selected_category")
+
+    jobs = jobs.filter(primary_keyword__icontains=category)
+
+    return jobs, category
 
 
 def filter_by_query(jobs: QuerySet, query: str, position_only: bool, description_only: bool) -> QuerySet:
