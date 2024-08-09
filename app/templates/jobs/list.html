@@ -15,39 +15,56 @@
   .text-clamp * {
     margin-bottom: 0;
   }
-.category-radio-wrapper {
-    display: inline-block;
-    margin-right: 10px;
-}
 
-.category-radio-wrapper input[type="radio"] {
-    position: absolute;
-    opacity: 0;
-    cursor: pointer;
-}
+  .category-checkboxes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+  }
 
-.category-radio-wrapper label {
-    padding: 5px 10px;
-    border: 1px solid #007bff;
-    border-radius: 4px;
-    background-color: #f8f9fa;
-    color: #007bff;
-    cursor: pointer;
-    display: inline-block;
-    transition: background-color 0.3s ease, color 0.3s ease;
-    font-size: 14px;
-    white-space: nowrap;
-}
+  .checkbox-wrapper {
+      display: inline-block;
+      margin-right: 10px;
+  }
 
-.category-radio-wrapper input[type="radio"]:checked + label {
-    background-color: #007bff;
-    color: #fff;
-}
+  .checkbox-wrapper input[type="checkbox"] {
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+  }
 
-.category-radio-wrapper label:hover {
-    background-color: #e2e6ea;
-}
+  .checkbox-wrapper label {
+      padding: 5px 10px;
+      border: 1px solid #007bff;
+      border-radius: 4px;
+      background-color: #f8f9fa;
+      color: #007bff;
+      cursor: pointer;
+      display: inline-block;
+      transition: background-color 0.3s ease, color 0.3s ease;
+      font-size: 14px;
+      white-space: nowrap;
+  }
+
+  .checkbox-wrapper input[type="checkbox"]:checked + label {
+      background-color: #007bff;
+      color: #fff;
+  }
+
+  .checkbox-wrapper label:hover {
+      background-color: #e2e6ea;
+  }
 </style>
+
+<!--Select only one checkbox-->
+<script>
+  function onlyOne(checkbox) {
+    var checkboxes = document.getElementsByName(checkbox.name)
+    checkboxes.forEach((item) => {
+        if (item !== checkbox) item.checked = false
+    })
+}
+</script>
 
 <div class="container">
   <header class="pt-4 pb-4">
@@ -88,10 +105,11 @@
           <label>Category</label>
           <div class="category-buttons mb-3">
           {% for value, label in category_filter_form.category_choices %}
-            <div class="category-radio-wrapper mb-1">
-              <input type="radio" id="category_{{ value }}" name="selected_category" value="{{ value }}"
-                  {% if value == selected_category %}checked{% endif %}>
-              <label for="category_{{ value }}">{{ label }}</label>
+            <div class="checkbox-wrapper mb-1">
+                <input type="checkbox" id="category_{{ value }}" name="selected_category" value="{{ value }}"
+                       {% if value == selected_category %}checked{% endif %}
+                onclick="onlyOne(this)">
+                <label for="category_{{ value }}">{{ label }}</label>
             </div>
           {% endfor %}
           </div>
