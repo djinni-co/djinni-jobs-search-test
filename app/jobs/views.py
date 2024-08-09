@@ -47,4 +47,5 @@ def jobs_list(request):
         "page_obj": jobs_list,
         "is_paginated": jobs_list.has_other_pages(),
         "querystring": querystring,
+        "selected_category": category
     })
