@@ -13,7 +13,7 @@ RUN pip install -r requirements.txt
 COPY . /app
 
 # Expose the port that the application will run on
-EXPOSE 8000
+EXPOSE 8001
 
 # Start the application
-CMD ["python", "manage.py", "runserver", "localhost:8000"]
+CMD ["python", "manage.py", "runserver", "localhost:8001"]

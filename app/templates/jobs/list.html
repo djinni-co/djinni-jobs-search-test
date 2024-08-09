@@ -1,64 +1,167 @@
 {% extends "base.html" %}
 
 {% block content %}
-
-  <style>
+<style>
     .text-clamp {
-      display: -webkit-box;
-      -webkit-line-clamp: 5;
-      -webkit-box-orient: vertical;
-      line-height: 1.3rem;
-      height: calc(1.3rem * 5);
-      overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 5;
+        -webkit-box-orient: vertical;
+        line-height: 1.3rem;
+        height: calc(1.3rem * 5);
+        overflow: hidden;
     }
 
     .text-clamp * {
-      margin-bottom: 0;
+        margin-bottom: 0;
     }
-  </style>
 
-  <div class="container">
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+    }
+
+    .pagination .page-item {
+        margin: 0 5px;
+    }
+
+    .filter-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+    }
+
+    .order-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 10px;
+    }
+
+    .order-buttons .btn {
+        margin-right: 10px;
+    }
+
+    .instructions {
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="container">
     <header class="pt-4 pb-4">
+        <h1>Jobs on Djinni</h1>
 
-      <h1>Jobs on Djinni</h1>
-      <div class="mb-4">
-        <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </div>
-          </div>
-        </form>
-      </div>
+        <div class="instructions">
+            <p>Use the search box below to find jobs by title, description, keywords, company name, and more.
+            You can also include or exclude specific terms in your search.</p>
+            <p><strong>Example:</strong> Search for <em>Python</em> to find jobs requiring Python skills.
+            Add <em>-Java</em> in the exclude terms field to filter out jobs requiring Java.</p>
+        </div>
 
+        <div class="mb-4">
+            <form method="GET" action="{% url 'jobs_list' %}">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" name="include_terms" value="{{ request.GET.include_terms }}" class="form-control" placeholder="Include terms (e.g., 'Python')">
+                    </div>
+                    <div class="col-sm-3">
+                        <input type="text" name="exclude_terms" value="{{ request.GET.exclude_terms }}" class="form-control" placeholder="Exclude terms (e.g., 'Java')">
+                    </div>
+                    <div class="col-auto">
+                        <button type="submit" class="btn btn-primary">Search</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <div class="filter-buttons">
+            <a href="?remote_type=office" class="btn btn-secondary">Office Jobs</a>
+            <a href="?remote_type=full_remote" class="btn btn-secondary">Remote Jobs</a>
+            <a href="?experience_years=3" class="btn btn-secondary">3+ Years Experience</a>
+            <a href="?english_level=fluent" class="btn btn-secondary">Fluent English</a>
+        </div>
+
+        <div class="order-buttons">
+            <a href="?ordering=-published" class="btn btn-outline-primary">Newest First</a>
+            <a href="?ordering=salary_min" class="btn btn-outline-primary">Lowest Salary First</a>
+            <a href="?ordering=-salary_max" class="btn btn-outline-primary">Highest Salary First</a>
+            <a href="?ordering=applications_count" class="btn btn-outline-primary">Most Applications</a>
+        </div>
     </header>
 
     <div id="jobs_list">
-      <div class="row">
-        <div class="col-sm-8">
-
-          {% for job in jobs %}
-            <div id="job_{{job.id}}" class="mb-5">
-              <h2 class="h4 text-primary">
-                {{ job.position }}
-                {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
+        <div class="row">
+            <div class="col-sm-12">
+                {% if jobs %}
+                    {% for job in jobs %}
+                        <div id="job_{{ job.id }}" class="mb-5">
+                            <h2 class="h4 text-primary">
+                                {{ job.position }}
+                                {% if job.public_salary_max %}
+                                    <span class="text-success">to ${{ job.public_salary_max }}</span>
+                                {% endif %}
+                                <small class="text-secondary">at {{ job.company.name }}</small>
+                            </h2>
+                            <div>
+                                <div class="text-clamp">
+                                    {{ job.long_description|safe }}
+                                </div>
+                                <ul>
+                                    <li><strong>Location:</strong> {{ job.location }}</li>
+                                    <li><strong>Remote Type:</strong> {{ job.get_remote_type_display }}</li>
+                                    <li><strong>Experience Required:</strong> {{ job.experience_years }} years</li>
+                                    <li><strong>English Level:</strong> {{ job.get_english_level_display }}</li>
+                                    <li><strong>Domain:</strong> {{ job.get_domain_display }}</li>
+                                    <li><strong>Applications:</strong> {{ job.applications_count }}</li>
+                                    <li><strong>Published:</strong> {{ job.published|date:"Y-m-d" }}</li>
+                                </ul>
+                            </div>
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No jobs found matching your criteria.</p>
                 {% endif %}
-                <small class="text-secondary">at {{ job.company.name }}</small>
-              </h2>
-              <div>
-                <div class="text-clamp">
-                  {{ job.long_description|safe }}
-                </div>
-              </div>
             </div>
-          {% endfor %}
-
         </div>
-      </div>
+        {% if is_paginated %}
+            <div class="pagination">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">&laquo; Previous</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">&laquo; Previous</span>
+                        </li>
+                    {% endif %}
+
+                    {% for i in paginator.page_range %}
+                        {% if page_obj.number == i %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ i }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ i }}">{{ i }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next &raquo;</a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Next &raquo;</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        {% endif %}
     </div>
-  </div>
+</div>
 {% endblock content %}
