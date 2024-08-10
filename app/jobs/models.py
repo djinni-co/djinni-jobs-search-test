@@ -165,24 +165,24 @@ class Country(models.TextChoices):
 
 
 class Order(models.TextChoices):
-    PUBLISHED_NEW_TO_OLD = "-published", _('Published (new to old)')
-    PUBLISHED_OLD_TO_NEW = "published", _('Published (old to new)')
-    APPLICATIONS_HIGH_TO_LOW = "-applications_count", _('Number of applications (highest to lowest)')
-    APPLICATIONS_LOW_TO_HIGH = "applications_count", _('Number of applications (lowest to highest)')
+    PUBLISHED_NEW_TO_OLD = '-published', _('Published (new to old)')
+    PUBLISHED_OLD_TO_NEW = 'published', _('Published (old to new)')
+    APPLICATIONS_HIGH_TO_LOW = '-applications_count', _('Number of applications (highest to lowest)')
+    APPLICATIONS_LOW_TO_HIGH = 'applications_count', _('Number of applications (lowest to highest)')
 
 
 class Experience(models.TextChoices):
-        ZERO = '0y', _("No experience")
-        ONE = '1y', _("1 year")
-        TWO = '2y', _("2 years")
-        THREE = '3y', _("3 years")
-        FOUR = '4y', _("4 years")
-        FIVE = '5y', _("5 years")
-        SIX = '6y', _("6 years")
-        SEVEN = '7y', _("7 years")
-        EIGHT = '8y', _("8 years")
-        NINE = '9y', _("9 years")
-        TEN = '10y', _("10 years")
+        ZERO = '0y', _('No experience')
+        ONE = '1y', _('1 year')
+        TWO = '2y', _('2 years')
+        THREE = '3y', _('3 years')
+        FOUR = '4y', _('4 years')
+        FIVE = '5y', _('5 years')
+        SIX = '6y', _('6 years')
+        SEVEN = '7y', _('7 years')
+        EIGHT = '8y', _('8 years')
+        NINE = '9y', _('9 years')
+        TEN = '10y', _('10 years')
 
 
 class RemoteType(models.TextChoices):
@@ -211,22 +211,22 @@ class Location(models.TextChoices):
         Також є варіант з тим, щоб звести всі міста до однієї мови запитом в БД, але я не маю повного бачення як саме
         задаються/обираються міста при створенні вакансії, тому вирішив залишити так, як є.
     """
-    KYIV = "Киев", _("Kyiv")
-    LVIV = "Львов", _("Lviv")
-    KHARKIV = "Харьков", _("Kharkiv")
-    DNIPRO = "Днепр", _("Dnipro")
-    IVANO_FRANKIVSK = "Ивано-Франковск", _("Ivano-Frankivsk")
-    VINNYTSIA = "Винница", _("Vinnytsia")
-    ODESA = "Одесса", _("Odesa")
-    KHMELNYTSKYI = "Хмельницкий", _("Khmelnytskyi")
-    UZHHOROD = "Ужгород", _("Uzhhorod")
-    ZAPORIZHZHIA = "Запорожье", _("Zaporizhzhia")
-    CHERNIVTSI = "Черновцы", _("Chernivtsi")
-    CHERKASY = "Черкассы", _("Cherkasy")
-    MYKOLAIV = "Николаев", _("Mykolaiv")
-    CHERNIHIV = "Чернигов", _("Chernihiv")
-    ZHYTOMYR = "Житомир", _("Zhytomyr")
-    TERNOPIL = "Тернополь", _("Ternopil")
+    KYIV = 'Киев', _('Kyiv')
+    LVIV = 'Львов', _('Lviv')
+    KHARKIV = 'Харьков', _('Kharkiv')
+    DNIPRO = 'Днепр', _('Dnipro')
+    IVANO_FRANKIVSK = 'Ивано-Франковск', _('Ivano-Frankivsk')
+    VINNYTSIA = 'Винница', _('Vinnytsia')
+    ODESA = 'Одесса', _('Odesa')
+    KHMELNYTSKYI = 'Хмельницкий', _('Khmelnytskyi')
+    UZHHOROD = 'Ужгород', _('Uzhhorod')
+    ZAPORIZHZHIA = 'Запорожье', _('Zaporizhzhia')
+    CHERNIVTSI = 'Черновцы', _('Chernivtsi')
+    CHERKASY = 'Черкассы', _('Cherkasy')
+    MYKOLAIV = 'Николаев', _('Mykolaiv')
+    CHERNIHIV = 'Чернигов', _('Chernihiv')
+    ZHYTOMYR = 'Житомир', _('Zhytomyr')
+    TERNOPIL = 'Тернополь', _('Ternopil')
 
 
 LOCATION_CHOICES = {str(choices[0]): str(choices[1]) for choices in Location.choices}
