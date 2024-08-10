@@ -45,12 +45,15 @@ def category_form_handler(jobs: QuerySet, form: forms.Form) -> Tuple[QuerySet, d
     remote_type = form.cleaned_data.get("selected_remote_type")
     english_level = form.cleaned_data.get("selected_english_level")
     experience_level = form.cleaned_data.get("selected_experience_level")
+    salary = form.cleaned_data.get("salary")
 
     if category != "":
         jobs = jobs.filter(primary_keyword=category)
     jobs = jobs.filter(remote_type__icontains=remote_type)
     jobs = english_selection_handler(jobs, english_level)
     jobs = experience_selection_handler(jobs, experience_level)
+    if salary is not None:
+        jobs = jobs.filter(salary_min__gte=salary)
 
     context = {
         "selected_category": category,

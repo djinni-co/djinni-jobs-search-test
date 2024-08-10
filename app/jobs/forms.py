@@ -39,6 +39,7 @@ class CategoryFilterForm(forms.Form):
     selected_remote_type = forms.CharField(widget=forms.HiddenInput(), required=False)
     selected_english_level = forms.CharField(widget=forms.HiddenInput(), required=False)
     selected_experience_level = forms.CharField(widget=forms.HiddenInput(), required=False)
+    salary = forms.IntegerField(required=False)
 
     def __init__(self, *args, **kwargs):
         super(CategoryFilterForm, self).__init__(*args, **kwargs)

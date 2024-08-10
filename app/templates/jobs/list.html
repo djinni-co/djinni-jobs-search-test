@@ -54,9 +54,26 @@
   .checkbox-wrapper label:hover {
       background-color: #e2e6ea;
   }
+  .slider-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .slider-container input[type="range"] {
+    flex: 1;
+  }
+
+  .slider-container span {
+    min-width: 80px;
+    text-align: right;
+  }
 </style>
 
 <!--Select only one checkbox-->
+<!--Reset selected filters-->
+<!--Update salary label-->
+<!--Reset all filters-->
 <script>
   function onlyOne(checkbox) {
     var checkboxes = document.getElementsByName(checkbox.name)
@@ -70,6 +87,16 @@
       checkbox.checked = false;
     });
     document.getElementById('filter-form').submit();
+  }
+  function updateSalaryValue(value) {
+    document.getElementById('salary_value').textContent = value;
+  }
+  function resetFilters() {
+    var form = document.getElementById('filter-form');
+    form.reset();
+    var url = new URL(window.location.href);
+    url.search = '';
+    window.location.href = url;
   }
 </script>
 
@@ -175,7 +202,15 @@
           {% endfor %}
           </div>
         </div>
+        <div class="form-group mb-4">
+          <label for="salary_range">Salary starting from:</label>
+          <div class="slider-container">
+            <input type="range" id="salary_range" name="salary" min="0" max="10000" step="500" value="{{ category_filter_form.salary.value|default:0 }}" oninput="updateSalaryValue(this.value)">
+            <span id="salary_value">{{ category_filter_form.salary.value|default:0 }}</span> USD
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary">Search</button>
+        <button type="button" class="btn btn-secondary" onclick="resetFilters()">Reset</button>
       </form>
     </div>
 
