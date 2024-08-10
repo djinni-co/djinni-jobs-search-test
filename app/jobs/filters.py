@@ -1,4 +1,6 @@
 import django_filters
+from django.forms import forms
+from django import forms
 
 from jobs.utils import get_unique_choices, get_choices
 from jobs.models import (
@@ -14,16 +16,37 @@ class JobPostingFilter(django_filters.FilterSet):
     """ Filters for job postings. """
     position = django_filters.ChoiceFilter(choices=get_unique_choices('position', JobPosting))
     domain = django_filters.ChoiceFilter(choices=JobDomain.choices)
-    company_type = django_filters.ChoiceFilter(choices=CompanyType.choices)
-    experience_years = django_filters.ChoiceFilter(choices=get_unique_choices('experience_years', JobPosting))
-    english_level = django_filters.ChoiceFilter(choices=EnglishLevel.choices)
-    accept_region = django_filters.ChoiceFilter(choices=AcceptRegion.choices)
-    remote_type = django_filters.ChoiceFilter(choices=RemoteType.choices)
+    company_type = django_filters.MultipleChoiceFilter(
+        choices=CompanyType.choices,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
+    experience_years = django_filters.MultipleChoiceFilter(
+        choices=get_unique_choices('experience_years', JobPosting),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
+    english_level = django_filters.MultipleChoiceFilter(
+        choices=EnglishLevel.choices,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
+    accept_region = django_filters.MultipleChoiceFilter(
+        choices=AcceptRegion.choices,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
+    remote_type = django_filters.MultipleChoiceFilter(
+        choices=RemoteType.choices,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
     salary_min = django_filters.NumberFilter(
         field_name='salary_min', lookup_expr='gte', label='Payment from'
     )
-    location = django_filters.ChoiceFilter(choices=lambda: get_choices('location'))
-    country = django_filters.ChoiceFilter(choices=lambda: get_choices('country'))
+    location = django_filters.MultipleChoiceFilter(
+        choices=lambda: get_choices('location'),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
+    country = django_filters.MultipleChoiceFilter(
+        choices=lambda: get_choices('country'),
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
     # company = django_filters.ChoiceFilter(choices=lambda: JobPostingFilter.get_choices('company'))
     sort_by = django_filters.ChoiceFilter(
         choices=[('created', 'Oldest to Newest'), ('-created', 'Newest to Oldest')],
