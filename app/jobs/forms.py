@@ -1,5 +1,5 @@
 from django import forms
-from jobs.models import Category
+from jobs.models import Category, RemoteType, EnglishLevel, RelocateType, Experience
 
 class JobFilterForm(forms.Form):
     """
@@ -33,11 +33,20 @@ class JobFilterForm(forms.Form):
 
 class CategoryFilterForm(forms.Form):
     """
-    Primary keyword selection
+    Encapsulate remaining filters extraction in one form
     """
     selected_category = forms.CharField(widget=forms.HiddenInput(), required=False)
+    selected_remote_type = forms.CharField(widget=forms.HiddenInput(), required=False)
+    selected_english_level = forms.CharField(widget=forms.HiddenInput(), required=False)
+    selected_experience_level = forms.CharField(widget=forms.HiddenInput(), required=False)
 
     def __init__(self, *args, **kwargs):
         super(CategoryFilterForm, self).__init__(*args, **kwargs)
         categories = Category.choices
         self.category_choices = [(value, label) for value, label in categories]
+        remote_type = RemoteType.choices
+        self.remote_type_choices = [(value, label) for value, label in remote_type]
+        english_level = EnglishLevel.choices
+        self.english_level_choices = [(value, label) for value, label in english_level]
+        experience_level = Experience.choices
+        self.experience_level_choices = [(value, label) for value, label in experience_level]

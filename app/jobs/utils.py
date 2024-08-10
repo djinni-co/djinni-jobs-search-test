@@ -34,16 +34,27 @@ def q_form_handler(jobs: QuerySet, form: forms.Form) -> QuerySet:
     return jobs
 
 
-def category_form_handler(jobs: QuerySet, form: forms.Form) -> Tuple[QuerySet, str]:
+def category_form_handler(jobs: QuerySet, form: forms.Form) -> Tuple[QuerySet, dict]:
     """
     Handle job postings filtering by primary_keyword and return tuple containing
     filtered job postings and selected category(needed for template rendering)
     """
     category = form.cleaned_data.get("selected_category")
+    remote_type = form.cleaned_data.get("selected_remote_type")
+    english_level = form.cleaned_data.get("selected_english_level")
+    #experience_level = form.cleaned_data.get("selected_experience_level")
 
     jobs = jobs.filter(primary_keyword__icontains=category)
+    jobs = jobs.filter(remote_type__icontains=remote_type)
+    jobs = jobs.filter(english_level__icontains=english_level)
+    #jobs = jobs.filter(primary_keyword__icontains=category)
+    context = {
+        "selected_category": category,
+        "selected_remote_type": remote_type,
+        "selected_english_level": english_level
+    }
 
-    return jobs, category
+    return jobs, context
 
 
 def filter_by_query(jobs: QuerySet, query: str, position_only: bool, description_only: bool) -> QuerySet:

@@ -12,12 +12,13 @@ def jobs_list(request):
     form = JobFilterForm(request.GET)
     category_form = CategoryFilterForm(request.GET)
     jobs = JobPosting.objects.all()
+    context={}
 
     if form.is_valid():
         jobs = q_form_handler(jobs, form)
 
     if category_form.is_valid():
-        jobs, category = category_form_handler(jobs, category_form)
+        jobs, context = category_form_handler(jobs, category_form)
 
     page = request.GET.get("page", 1)
     jobs_list, paginator = paginate_jobs(jobs, page, JOBS_PER_PAGE)
@@ -28,7 +29,7 @@ def jobs_list(request):
         querystring.pop('page')
     querystring = querystring.urlencode()
 
-    return render(request, "jobs/list.html", {
+    render_context = {
         "form": form,
         "category_filter_form": category_form,
         "jobs": jobs_list,
@@ -36,5 +37,6 @@ def jobs_list(request):
         "page_obj": jobs_list,
         "is_paginated": jobs_list.has_other_pages(),
         "querystring": querystring,
-        "selected_category": category
-    })
+    } | context
+
+    return render(request, "jobs/list.html", render_context)

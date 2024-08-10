@@ -100,6 +100,7 @@
           {{ form.exclude_keywords.label_tag }}
           {{ form.exclude_keywords }}
         </div>
+        <button type="submit" class="btn btn-primary">Search</button>
 
         <div class="form-group mb-4">
           <label>Category</label>
@@ -110,6 +111,32 @@
                        {% if value == selected_category %}checked{% endif %}
                 onclick="onlyOne(this)">
                 <label for="category_{{ value }}">{{ label }}</label>
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+        <div class="form-group mb-4">
+          <label>Remote type</label>
+          <div class="category-buttons mb-3">
+          {% for value, label in category_filter_form.remote_type_choices %}
+            <div class="checkbox-wrapper mb-1">
+                <input type="checkbox" id="remote_type_{{ value }}" name="selected_remote_type" value="{{ value }}"
+                       {% if value == selected_remote_type %}checked{% endif %}
+                onclick="onlyOne(this)">
+                <label for="remote_type_{{ value }}">{{ label }}</label>
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+        <div class="form-group mb-4">
+          <label>English level</label>
+          <div class="category-buttons mb-3">
+          {% for value, label in category_filter_form.english_level_choices %}
+            <div class="checkbox-wrapper mb-1">
+                <input type="checkbox" id="english_level_{{ value }}" name="selected_english_level" value="{{ value }}"
+                       {% if value == selected_english_level %}checked{% endif %}
+                onclick="onlyOne(this)">
+                <label for="english_level_{{ value }}">{{ label }}</label>
             </div>
           {% endfor %}
           </div>
