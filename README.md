@@ -114,7 +114,21 @@ Replace `<CONTAINER ID>` with the id of the postgres container and run the comma
 ```
 cat dump.sql | docker exec -i <CONTAINER ID> psql --user admin djinni_sandbox
 ```
+For search, the `PostgreSQL` module `pg_trgm` was used, which can be activated as follows:
 
+```
+docker-compose run web python app/manage.py dbshell
+```
+and then:
+
+```
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+```
+last step
+
+```
+docker-compose run web python app/manage.py migrate
+```
 Now open the http://0.0.0.0:8000 and you will see jobs list.
 
 Good to go! 👍👍

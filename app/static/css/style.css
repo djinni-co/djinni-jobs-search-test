@@ -1,0 +1,18 @@
+.text-clamp {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    line-height: 1.3rem;
+    overflow: hidden;
+}
+
+.text-clamp * {
+    margin-bottom: 0;
+}
+.card{
+    border: none;
+}
+.highlight {
+    background-color: yellow; /* Зміна фону */
+    padding: 2px 4px; /* Додавання відступів навколо тексту */
+    border-radius: 3px; /* Закруглення кутів */
+}
