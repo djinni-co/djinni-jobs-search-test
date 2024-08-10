@@ -36,17 +36,28 @@ def q_form_handler(jobs: QuerySet, form: forms.Form) -> QuerySet:
 
 def category_form_handler(jobs: QuerySet, form: forms.Form) -> Tuple[QuerySet, dict]:
     """
-    Handle job postings filtering by primary_keyword and return tuple containing
-    filtered job postings and selected category(needed for template rendering)
+    Handle job postings filtering by category form user input and return tuple containing
+    filtered job postings and predefined context(needed for template rendering)
     """
     category = form.cleaned_data.get("selected_category")
     remote_type = form.cleaned_data.get("selected_remote_type")
     english_level = form.cleaned_data.get("selected_english_level")
     #experience_level = form.cleaned_data.get("selected_experience_level")
 
+    # Define the hierarchy of English levels
+    english_level_hierarchy = {
+        "fluent": ["fluent", "upper", "intermediate", "pre", "basic", "no_english"],
+        "upper": ["upper", "intermediate", "pre", "basic", "no_english"],
+        "intermediate": ["intermediate", "pre", "basic", "no_english"],
+        "pre": ["pre", "basic", "no_english"],
+        "basic": ["basic", "no_english"],
+        "no_english": ["no_english"]
+    }
+
     jobs = jobs.filter(primary_keyword__icontains=category)
     jobs = jobs.filter(remote_type__icontains=remote_type)
-    jobs = jobs.filter(english_level__icontains=english_level)
+    if english_level in english_level_hierarchy:
+        jobs = jobs.filter(english_level__in=english_level_hierarchy[english_level])
     #jobs = jobs.filter(primary_keyword__icontains=category)
     context = {
         "selected_category": category,
