@@ -1,5 +1,4 @@
 import django_filters
-from django.forms import forms
 from django import forms
 
 from jobs.utils import get_unique_choices, get_choices
@@ -15,7 +14,10 @@ from jobs.models import (
 class JobPostingFilter(django_filters.FilterSet):
     """ Filters for job postings. """
     position = django_filters.ChoiceFilter(choices=get_unique_choices('position', JobPosting))
-    domain = django_filters.ChoiceFilter(choices=JobDomain.choices)
+    domain = django_filters.MultipleChoiceFilter(
+        choices=JobDomain.choices,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'})
+    )
     company_type = django_filters.MultipleChoiceFilter(
         choices=CompanyType.choices,
         widget=forms.SelectMultiple(attrs={'class': 'form-control'})
