@@ -93,11 +93,14 @@
                           </div>
                         </div>
                         
-                        <p class="text-muted">
-                          <i class="bi bi-calendar-event"> {{ job.published|date:"F j, Y" }}</i> |
-                          <i class="bi bi-eye">{{ job.views_count }}</i> |
-                          <i class="bi bi-journal-check">{{ job.applications_count }}</i>
+                        <p class="text-muted d-flex align-items-center">
+                          <i class="bi bi-calendar-event me-2"></i> {{ job.published|date:"F j, Y" }}
+                          <span class="mx-2">|</span>
+                          <i class="bi bi-eye me-2"></i> {{ job.views_count }}
+                          <span class="mx-2">|</span>
+                          <i class="bi bi-journal-check me-2"></i> {{ job.applications_count }}
                         </p>
+                      
                       </div>
                       {% endfor %}
                     
@@ -193,7 +196,14 @@
                     <input type="range" name="salary_min" min="100" max="10000" step="100" value="{{ filter.data.salary_min|default:'0' }}" class="form-range" id="salaryRange">
                     <span>від $<span id="salaryValue">{{ filter.data.salary_min|default:'100' }}</span></span>
                   </div>
-                  <button type="submit" class="btn btn-primary">Filter</button>
+                  <div class="d-flex justify-content-between">
+                    <a href="{% url 'jobs_list' %}" class="btn btn-secondary flex-grow-1 me-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-x-circle me-2"></i>Cancel Filters
+                    </a>
+                    <button type="submit" class="btn btn-primary flex-grow-1 ms-2 d-flex align-items-center justify-content-center">
+                        <i class="bi bi-funnel me-2"></i>Filter
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>
