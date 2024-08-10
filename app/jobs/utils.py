@@ -46,7 +46,8 @@ def category_form_handler(jobs: QuerySet, form: forms.Form) -> Tuple[QuerySet, d
     english_level = form.cleaned_data.get("selected_english_level")
     experience_level = form.cleaned_data.get("selected_experience_level")
 
-    jobs = jobs.filter(primary_keyword__icontains=category)
+    if category != "":
+        jobs = jobs.filter(primary_keyword=category)
     jobs = jobs.filter(remote_type__icontains=remote_type)
     jobs = english_selection_handler(jobs, english_level)
     jobs = experience_selection_handler(jobs, experience_level)
@@ -170,8 +171,8 @@ def experience_selection_handler(jobs: QuerySet, experience_level: str) -> Query
             jobs = jobs.filter(experience_years__gte=experience_level_hierarchy[experience_level])
         else:
             jobs = jobs.filter(
-                Q(experience_years__lte=experience_level_hierarchy[experience_level] &
-                Q(experience_years__gte=experience_level_hierarchy[experience_level] - 1))
+                Q(experience_years__gte=(experience_level_hierarchy[experience_level] - 1)) &
+                Q(experience_years__lte=experience_level_hierarchy[experience_level])
             )
 
     return jobs
