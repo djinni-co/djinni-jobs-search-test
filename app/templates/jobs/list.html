@@ -45,26 +45,58 @@
                     <div class="col-sm-8">
                       {% for job in jobs %}
                       <div id="job_{{ job.id }}" class="mb-5">
-                          <h2 class="h4 text-primary">
-                              {{ job.position }}
-                              {% if job.public_salary_max %}
-                                  <span class="text-success">to ${{ job.public_salary_max }}</span>
-                              {% endif %}
-                              <small class="text-secondary">at {{ job.company.name }}</small>
-                          </h2>
-                          <div>
-                              <div class="text-clamp" id="short_{{ job.id }}">
-                                {{ job.long_description|striptags|replace_nbsp|truncatewords:50 }}
-                                <a href="javascript:void(0);" onclick="toggleDescription({{ job.id }});">Read more</a>
-                              </div>
-                              <div class="d-none" id="full_{{ job.id }}">
-                                {{ job.long_description|highlight:query|safe }}
-                                <a href="javascript:void(0);" onclick="toggleDescription({{ job.id }});">Read less</a>
-                              </div>
+                        <h2 class="h4 text-primary">
+                          {{ job.position }}
+                          {% if job.public_salary_max %}
+                            <span class="text-success">to ${{ job.public_salary_max }}</span>
+                          {% endif %}
+                          <small class="text-secondary">at {{ job.company.name }}</small>
+                        </h2>
+                    
+                        <div class="mb-2">
+                          <!-- Domain -->
+                          {% if job.domain %}
+                            <span class="badge bg-info">Domain: {{ job.get_domain_display }}</span>
+                          {% endif %}
+                          
+                          <!-- Experience Years -->
+                          {% if job.experience_years %}
+                            <span class="badge bg-secondary">Experience: {{ job.experience_years }} years</span>
+                          {% endif %}
+                          
+                          <!-- Location and Country -->
+                          {% if job.location or job.country %}
+                            <span class="badge bg-primary">
+                              Location: {{ job.location }}{% if job.country %}, {{ job.country }}{% endif %}
+                            </span>
+                          {% endif %}
+                          
+                          <!-- Remote Type -->
+                          {% if job.remote_type %}
+                            <span class="badge bg-warning">{{ job.get_remote_type_display }}</span>
+                          {% endif %}
+                          
+                          <!-- Part-time Indicator -->
+                          {% if job.is_parttime %}
+                            <span class="badge bg-success">Part-time</span>
+                          {% endif %}
+                        </div>
+                        
+                        <div>
+                          <div class="text-clamp" id="short_{{ job.id }}">
+                            {{ job.long_description|striptags|replace_nbsp|truncatewords:50 }}
+                            <a href="javascript:void(0);" onclick="toggleDescription({{ job.id }});">Read more</a>
                           </div>
-                          <p class="text-muted">Published on: {{ job.published|date:"F j, Y" }}</p>
+                          <div class="d-none" id="full_{{ job.id }}">
+                            {{ job.long_description|highlight:query|safe }}
+                            <a href="javascript:void(0);" onclick="toggleDescription({{ job.id }});">Read less</a>
+                          </div>
+                        </div>
+                        
+                        <p class="text-muted">Published on: {{ job.published|date:"F j, Y" }}</p>
                       </div>
-                      {% endfor %}
+                    {% endfor %}
+                    
                   
                       <div class="pagination">
                         <ul class="pagination justify-content-center">
