@@ -1,6 +1,8 @@
 from typing import Tuple
 
 from django.db.models import Q
+from django.contrib.postgres.aggregates import StringAgg
+from django.db.models import F
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger, Page
 from django import forms
 from functools import reduce
@@ -42,27 +44,18 @@ def category_form_handler(jobs: QuerySet, form: forms.Form) -> Tuple[QuerySet, d
     category = form.cleaned_data.get("selected_category")
     remote_type = form.cleaned_data.get("selected_remote_type")
     english_level = form.cleaned_data.get("selected_english_level")
-    #experience_level = form.cleaned_data.get("selected_experience_level")
-
-    # Define the hierarchy of English levels
-    english_level_hierarchy = {
-        "fluent": ["fluent", "upper", "intermediate", "pre", "basic", "no_english"],
-        "upper": ["upper", "intermediate", "pre", "basic", "no_english"],
-        "intermediate": ["intermediate", "pre", "basic", "no_english"],
-        "pre": ["pre", "basic", "no_english"],
-        "basic": ["basic", "no_english"],
-        "no_english": ["no_english"]
-    }
+    experience_level = form.cleaned_data.get("selected_experience_level")
 
     jobs = jobs.filter(primary_keyword__icontains=category)
     jobs = jobs.filter(remote_type__icontains=remote_type)
-    if english_level in english_level_hierarchy:
-        jobs = jobs.filter(english_level__in=english_level_hierarchy[english_level])
-    #jobs = jobs.filter(primary_keyword__icontains=category)
+    jobs = english_selection_handler(jobs, english_level)
+    jobs = experience_selection_handler(jobs, experience_level)
+
     context = {
         "selected_category": category,
         "selected_remote_type": remote_type,
-        "selected_english_level": english_level
+        "selected_english_level": english_level,
+        "selected_experience_level": experience_level
     }
 
     return jobs, context
@@ -144,3 +137,41 @@ def paginate_jobs(jobs: QuerySet, page: int, jobs_per_page: int) -> Tuple[Page, 
     except EmptyPage:
         jobs_list = paginator.page(paginator.num_pages)
     return jobs_list, paginator
+
+def english_selection_handler(jobs: QuerySet, english_level: str) -> QuerySet:
+    # Define the hierarchy of English levels
+    english_level_hierarchy = {
+        "fluent": ["fluent", "upper", "intermediate", "pre", "basic", "no_english"],
+        "upper": ["upper", "intermediate", "pre", "basic", "no_english"],
+        "intermediate": ["intermediate", "pre", "basic", "no_english"],
+        "pre": ["pre", "basic", "no_english"],
+        "basic": ["basic", "no_english"],
+        "no_english": ["no_english"]
+    }
+    if english_level in english_level_hierarchy:
+        jobs = jobs.filter(english_level__in=english_level_hierarchy[english_level])
+    return jobs
+
+
+def experience_selection_handler(jobs: QuerySet, experience_level: str) -> QuerySet:
+    # Define exp levels as integers to integrate with user selection
+    experience_level_hierarchy = {
+        "no_exp": 0,
+        "1y": 1,
+        "2y": 2,
+        "3y": 3,
+        "5y": 5
+    }
+
+    # If User inputs 5y; find job postings with 5 years or greater level of exp
+    # Else find job postings that correspond user selection with 1 year of error
+    if experience_level in experience_level_hierarchy:
+        if experience_level == "5y":
+            jobs = jobs.filter(experience_years__gte=experience_level_hierarchy[experience_level])
+        else:
+            jobs = jobs.filter(
+                Q(experience_years__lte=experience_level_hierarchy[experience_level] &
+                Q(experience_years__gte=experience_level_hierarchy[experience_level] - 1))
+            )
+
+    return jobs

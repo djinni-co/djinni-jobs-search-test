@@ -141,6 +141,19 @@
           {% endfor %}
           </div>
         </div>
+        <div class="form-group mb-4">
+          <label>Experience level</label>
+          <div class="category-buttons mb-3">
+          {% for value, label in category_filter_form.experience_level_choices %}
+            <div class="checkbox-wrapper mb-1">
+                <input type="checkbox" id="experience_level_{{ value }}" name="selected_experience_level" value="{{ value }}"
+                       {% if value == selected_experience_level %}checked{% endif %}
+                onclick="onlyOne(this)">
+                <label for="experience_level_{{ value }}">{{ label }}</label>
+            </div>
+          {% endfor %}
+          </div>
+        </div>
         <button type="submit" class="btn btn-primary">Search</button>
       </form>
     </div>

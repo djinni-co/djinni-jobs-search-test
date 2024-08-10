@@ -6,7 +6,7 @@ class Experience(models.TextChoices):
         ONE = "1y", _("1 year")
         TWO = "2y", _("2 years")
         THREE = "3y", _("3 years")
-        FIVE = "5y", _("5 years")
+        FIVE = "5y", _("5 years and more")
 
 class RemoteType(models.TextChoices):
     OFFICE = "office", _("Office Work")
