@@ -118,6 +118,12 @@ docker compose cp <path to dump>dump.sql db:.
 docker compose exec -it db psql -U admin -d djinni_sandbox -f ./dump.sql
 ```
 
+#### 5. Run migrations 
+
+```
+docker compose exec web python3 app/manage.py migrate
+```
+
 Now open the http://0.0.0.0:8000 and you will see jobs list.
 
 Good to go! 👍👍
