@@ -88,7 +88,11 @@ class JobFilterSchema(django_filters.FilterSet):
                 value.remove(Country.EUROPE)
                 value.extend(EU_COUNTRY_CODES)
 
-            return queryset.filter(Q(country__in=value) | Q(country__isnull=True))
+            query = Q()
+            for country in value:
+                query |= Q(country__icontains=country)
+
+            return queryset.filter(query | Q(country__isnull=True))
         return queryset
 
     def filter_search_text(self, queryset, _, value):
