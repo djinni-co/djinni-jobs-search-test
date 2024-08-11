@@ -2,11 +2,11 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 
 class Experience(models.TextChoices):
-        ZERO = "no_exp", _("No experience")
-        ONE = "1y", _("1 year")
-        TWO = "2y", _("2 years")
-        THREE = "3y", _("3 years")
-        FIVE = "5y", _("5 years")
+    ZERO = "0", _("No experience")
+    ONE = "1", _("1 year")
+    TWO = "2", _("2 years")
+    THREE = "3", _("3 years")
+    FIVE = "5", _("5 years")
 
 class RemoteType(models.TextChoices):
     OFFICE = "office", _("Office Work")
@@ -66,26 +66,8 @@ class CompanyType(models.TextChoices):
     PRODUCT = "product", _("Product")
     STARTUP = "startup", _("Startup")
 
-class RemoteType(models.TextChoices):
-        OFFICE = "office", _("Office Work")
-        PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
-        FULL_REMOTE = "full_remote", _("Full Remote")
-        CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
-
-class CompanyType(models.TextChoices):
-    AGENCY = ("agency/freelance", "agency/freelance")
-    PRODUCT = ("product", "product")
-    OUTSOURCE = ("outsource/outstaff", "outsource/outstaff")
-    OTHER = ("other", "other")
-
-
 class JobPosting(models.Model):
     class Status(models.TextChoices):
-        """
-        Цей клас був створений пілся StatusReview та StatusPublic як уніфіковані статуси
-        для міграції на один статус, без подвійного флоу з StatusPublic та StatusReview.
-        """
-
         DRAFT = "draft", _("Draft")
         REVIEW = "review", _("Review")
         PUBLISHED = "published", _("Published")
@@ -121,7 +103,9 @@ class JobPosting(models.Model):
 
     # Skills
     extra_keywords = models.CharField(max_length=250, blank=True, null=True, default="")
-    experience_years = models.FloatField(default=0)
+    experience_years = models.CharField(
+        max_length=10, blank=True, default="", null=True, choices=Experience.choices
+    )
     english_level = models.CharField(
         max_length=15, blank=True, default="", null=True, choices=EnglishLevel.choices
     )
@@ -172,7 +156,6 @@ class JobPosting(models.Model):
     last_modified = models.DateTimeField(blank=True, null=True, auto_now=True, db_index=True)
     published = models.DateTimeField(blank=True, null=True, db_index=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
-
 
 class Recruiter(models.Model):
     email = models.EmailField(blank=False, db_index=True, unique=True)
