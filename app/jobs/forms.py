@@ -41,8 +41,10 @@ class OrderSelectionForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
         super(OrderSelectionForm, self).__init__(*args, **kwargs)
-        self.order_choices = [("applications_count", "Application counts"),
-                              ("published", "Publishing Date")]
+        self.order_choices = [("-applications_count", "Application counts (from highest)"),
+                              ("-published", "Publishing Date (from newest)"),
+                              ("applications_count", "Application counts (from lowest)"),
+                              ("published", "Publishing Date (from oldest)")]
 
 
 class CategoryFilterForm(forms.Form):

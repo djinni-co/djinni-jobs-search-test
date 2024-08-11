@@ -72,7 +72,7 @@ def order_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -> T
     """
     order = form.cleaned_data.get("selected_order")
     if order:
-        jobs = jobs.order_by(f"-{order}")
+        jobs = jobs.order_by(order)
 
     context = {
         "selected_order": order
