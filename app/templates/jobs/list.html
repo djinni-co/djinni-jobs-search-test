@@ -2,63 +2,494 @@
 
 {% block content %}
 
-  <style>
-    .text-clamp {
-      display: -webkit-box;
-      -webkit-line-clamp: 5;
-      -webkit-box-orient: vertical;
-      line-height: 1.3rem;
-      height: calc(1.3rem * 5);
-      overflow: hidden;
-    }
+{% load static %}
 
-    .text-clamp * {
-      margin-bottom: 0;
-    }
-  </style>
+{% load custom_tags %}
 
-  <div class="container">
-    <header class="pt-4 pb-4">
+<head>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-      <h1>Jobs on Djinni</h1>
-      <div class="mb-4">
-        <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </div>
+    <link rel="stylesheet" type="text/css" href="{% static 'jobs/css/styles.css' %}">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <title></title>
+</head>
+
+<div class="container">
+  <header class="pt-4 pb-4">
+    <h1>Jobs on Djinni</h1>
+    <div class="mb-4">
+      <form id="filter-form" method="GET">
+          {{ filter.form.as_p }}
+        <!-- Basic Search block -->
+        <div class="row">
+          <div class="col-sm-6">
+            <input type="search" name="search_text" value="{{ search_text }}" class="form-control" placeholder="Search jobs">
           </div>
-        </form>
-      </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-primary">Search</button>
+          </div>
+        </div>
 
-    </header>
+        <!-- Clickable Advanced Search text -->
+        <div class="mt-2">
+            <a href="#" id="advanced-search-toggle">Advanced search</a>
+        </div>
 
-    <div id="jobs_list">
-      <div class="row">
-        <div class="col-sm-8">
+        <!-- Advanced Search block -->
+        <div id="advanced-search-block" class="mt-3" style="display: none;">
+            <div class="form-check">
+                <input
+                        class="form-check-input"
+                        type="checkbox"
+                        name="full_text_search"
+                        id="full_text_search"
+                        value="on" {% if full_text_search %} checked {% endif %}>
+                <label class="form-check-label" for="full_text_search">Search by full text and keywords</label>
+            </div>
 
+            <div class="row mt-3">
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="company_name">Search by company name</label>
+                        <div class="input-group">
+                            <input id="company_name" type="search" name="company_name"
+                                   value="{{ company_name }}" class="form-control"
+                                   placeholder="E.g.: Djinni">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group">
+                        <label for="exclude_words">Exclude words from search</label>
+                        <div class="input-group">
+                            <input id="exclude_words" type="search" name="exclude_words"
+                                   value="{{ exclude_words }}" class="form-control"
+                                   placeholder="E.g.: fullstack middle angular">
+                            <div class="input-group-append">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-arrow-right"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+  </header>
+  <div class="filter-container">
+    <div class="jobs-list">
+      <!-- Jobs List -->
+      <div id="jobs_list">
+        <div class="row">
           {% for job in jobs %}
-            <div id="job_{{job.id}}" class="mb-5">
+            <div id="job_{{ job.id }}" class="mb-5">
               <h2 class="h4 text-primary">
                 {{ job.position }}
+                {% if job.public_salary_min %}
+                  <span class="text-success">from ${{ job.public_salary_min }}</span>
+                {% endif %}
                 {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
+                  <span class="text-success">to ${{ job.public_salary_max }}</span>
                 {% endif %}
                 <small class="text-secondary">at {{ job.company.name }}</small>
+                <div class="company-pic-wrapper">
+                    <img class="company-pic-image" src="{{ job.company.logo_url }}" alt=""
+                         onerror="this.classList.add('d-none')">
+                </div>
               </h2>
-              <div>
-                <div class="text-clamp">
+              <div class="tag-container">
+                  <span class="default-tag" data-content="{{ job.remote_type|get_choice_label:remote_type_choices }}">
+                      {{ job.remote_type|get_choice_label:remote_type_choices }}
+                  </span>
+                  <span class="default-tag limited-tooltip"
+                        data-content="{{ job.country|get_country_names }}{{ job.location|get_location_names }}">
+                      {{ job.country|get_country_names }} {{ job.location|get_location_names }}
+                  </span>
+                  <span class="default-tag" data-content="{{ job.company_type|get_choice_label:company_type_choices }}">
+                      {{ job.company_type|get_choice_label:company_type_choices }}
+                  </span>
+                  <span class="default-tag"  data-content="{{ job.experience_years|format_experience_years }}">
+                      {{ job.experience_years|format_experience_years }}
+                  </span>
+                  <span class="default-tag" data-content="{{ job.english_level|get_choice_label:english_level_choices }}">
+                      {{ job.english_level|get_choice_label:english_level_choices }}
+                  </span>
+
+                  {% if job.is_reserving_from_mobilisation %}
+                    <span class="default-tag reservation">Reservation ⏸️️</span>
+                  {% endif %}
+              </div>
+              <div class="job-item">
+                <div class="text-clamp job-description">
                   {{ job.long_description|safe }}
                 </div>
+                <button id="toggleButton" class="toggle-button">Show more details</button>
+              </div>
+              <div class="container-wrapper">
+                <div class="date-container">
+                    <img class="clock-icon" src="{% static 'jobs/images/clock.svg' %}" alt="Clock Icon">
+                    <span>{{ job.published|format_date }}</span>
+                    <div class="tooltip">{{ job.published|date:"d-m-Y H:i" }}</div>
+                </div>
+
+                <div class="views-container">
+                <img class="views-icon" src="{% static 'jobs/images/eye.svg' %}" alt="Views Icon">
+                <span>{{ job.views_count }}</span>
+                <div class="tooltip">{{ job.views_count }} views</div>
+              </div>
+
+              <div class="applications-container">
+                <img class="applications-icon" src="{% static 'jobs/images/job_application.svg' %}" alt="Applications Icon">
+                <span>{{ job.applications_count }}</span>
+                <div class="tooltip">{{ job.applications_count }} job applications</div>
+              </div>
+
               </div>
             </div>
           {% endfor %}
-
         </div>
       </div>
+
+      {% block pagination %}
+      <div class="container">
+        <div class="col-md-12">
+          {% if jobs.has_other_pages %}
+            <ul class="pagination">
+              {% if jobs.has_previous %}
+                <li class="page-item">
+                <a href="?page={{ jobs.previous_page_number }}{% for param, values in request.GET.lists %}{% if param != 'page' %}{% for value in values %}&{{ param }}={{ value }}{% endfor %}{% endif %}{% endfor %}" class="page-link">
+                  &laquo;
+                </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <a class="page-link">
+                    &laquo;
+                  </a>
+                </li>
+              {% endif %}
+
+              {% for page_number in jobs.adjusted_elided_pages %}
+                {% if page_number == jobs.paginator.ELLIPSIS %}
+                  <li class="page-item disabled">
+                    <span class="page-link">{{ page_number }}</span>
+                  </li>
+                {% else %}
+                  {% if page_number == jobs.number %}
+                    <li class="page-item active">
+                      <span class="page-link">{{ page_number }}</span>
+                    </li>
+                  {% else %}
+                    <li class="page-item">
+                      <a href="?page={{ page_number }}{% for param, values in request.GET.lists %}{% if param != 'page' %}{% for value in values %}&{{ param }}={{ value }}{% endfor %}{% endif %}{% endfor %}" class="page-link">{{ page_number }}</a>
+                    </li>
+                  {% endif %}
+                {% endif %}
+              {% endfor %}
+
+              {% if jobs.has_next %}
+                <li class="page-item">
+                <a href="?page={{ jobs.next_page_number }}{% for param, values in request.GET.lists %}{% if param != 'page' %}{% for value in values %}&{{ param }}={{ value }}{% endfor %}{% endif %}{% endfor %}" class="page-link">
+                  &raquo;
+                </a>
+                </li>
+              {% else %}
+                <li class="page-item disabled">
+                  <a class="page-link">
+                    &raquo;
+                  </a>
+                </li>
+              {% endif %}
+            </ul>
+          {% endif %}
+        </div>
+      </div>
+      {% endblock pagination %}
+    </div>
+
+    <div class="filter-sidebar">
+      <!-- Filters Sidebar -->
+      <h4>Filters</h4>
+        <div class="mb-3">
+            <label for="order">Sort by</label>
+            <select name="order" class="form-control">
+                {% for choice in orders %}
+                    <option value="{{ choice.0 }}" {% if choice.0 == order %}selected{% endif %}>{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Salary range filter -->
+        <div class="mb-3 slider-container">
+          <label for="salary_range">Minimum Salary:</label>
+          <div class="slider-label">
+            <span>$0</span>
+            <span>$10,000</span>
+          </div>
+          <input type="range" id="salary_range" value="{{ salary_min }}" min="0" max="10000" step="100" class="slider-range">
+          <input type="hidden" name="salary_min" id="salary_min_value" value="{{ salary_min }}">
+          <div class="slider-value">
+            <span id="salary_display">$0</span>
+          </div>
+        </div>
+
+        <!-- Remote type filter -->
+        <div class="mb-3">
+            <label for="remote_type">Remote Type</label>
+            <select id="remote_type" name="remote_type" class="form-control multiple-select" multiple>
+                {% for choice in remote_type_choices %}
+                    <option value="{{ choice.0 }}" {% if choice.0 in remote_type %}selected{% endif %}>{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- English level filter -->
+        <div class="mb-3">
+            <label for="english_level">English Level:</label>
+            <select id="english_level" name="english_level" class="form-control multiple-select" multiple>
+                {% for choice in english_level_choices %}
+                    <option value="{{ choice.0 }}" {% if choice.0 in english_level %}selected{% endif %}>{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Experience filter -->
+        <div class="mb-3">
+            <label for="experience_years">Experience</label>
+            <select id="experience_years" name="experience_years" class="form-control multiple-select" multiple>
+                {% for choice in experience_choices %}
+                    <option value="{{ choice.0 }}" {% if choice.0 in experience_years %}selected{% endif %}>{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Company type filter -->
+        <div class="mb-3">
+            <label for="company_type">Company type</label>
+            <select id="company_type" name="company_type" class="form-control multiple-select" multiple>
+                {% for choice in company_type_choices %}
+                    <option value="{{ choice.0 }}" {% if choice.0 in company_type %}selected{% endif %}>{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <!-- Category and subcategory filters -->
+        <div class="mb-3">
+            <label for="category">Category</label>
+            <select id="category-dropdown" name="category" class="form-control"
+                    onchange="updateSubcategoryDropdown({{ subcategory_choices|safe }}, '{{ subcategory }}')">
+                <option value="">Any</option>
+                {% for category_name, category_value in category_choices.items %}
+                    <option value="{{ category_value }}" {% if category_value == category %}selected{% endif %}>{{ category_name }}</option>
+                {% endfor %}
+            </select>
+
+            <label id="subcategory-label" for="category" class="margin-top-16px" style="display:none;">Subcategory:
+                <select id="subcategory-dropdown" name="subcategory" class="form-control" style="display:none;">
+                    <option value="">All</option>
+                </select>
+            </label>
+        </div>
+
+        <!-- Country and location filters -->
+        <div class="mb-3">
+            <label for="country">Country</label>
+            <select id="country" name="country" class="form-control multiple-select" multiple>
+                {% for choice in country_choices %}
+                    <option value="{{ choice.0 }}" {% if choice.0 in country %}selected{% endif %}>{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mb-3" id="location-selector" style="display: none;">
+            <label for="location">Location</label>
+            <select id="location" name="location" class="form-control multiple-select" multiple>
+                {% for choice in location_choices %}
+                    <option value="{{ choice.0 }}" {% if choice.0 in location %}selected{% endif %}>{{ choice.1 }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div class="mt-3">
+            <button type="reset" id="reset-filters-button" class="btn btn-secondary" onClick="this.form.reset()">Reset all</button>
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+        </div>
+      </form>
     </div>
   </div>
+
+<script>
+    // Dynamic salary range slider
+    const salaryRangeSlider = document.getElementById('salary_range');
+    const salaryDisplay = document.getElementById('salary_display');
+    const salaryMinInput = document.getElementById('salary_min_value');
+
+    function updateSliderDisplay() {
+        const value = salaryRangeSlider.value;
+        salaryDisplay.textContent = `$${value}`;
+        salaryMinInput.value = value;
+    }
+
+    salaryRangeSlider.addEventListener('input', updateSliderDisplay);
+
+    updateSliderDisplay();
+
+    // Shorten the tag and add a tooltip
+    document.addEventListener('DOMContentLoaded', function () {
+    const tags = document.querySelectorAll('.limited-tooltip');
+
+    tags.forEach(tag => {
+        if (tag.scrollWidth > tag.clientWidth) {
+            tag.setAttribute('title', tag.textContent.trim());
+        } else {
+            tag.removeAttribute('title');
+        }
+        });
+    });
+
+    // Show/Hide long job description
+    document.addEventListener("DOMContentLoaded", function() {
+      const jobItems = document.querySelectorAll(".job-item");
+
+      jobItems.forEach(function(item) {
+        const jobDescription = item.querySelector(".job-description");
+        const toggleButton = item.querySelector(".toggle-button");
+
+        toggleButton.addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent the form from being submitted
+
+            if (jobDescription.classList.contains("text-clamp")) {
+                jobDescription.classList.remove("text-clamp");
+                toggleButton.textContent = "Hide";
+            } else {
+                jobDescription.classList.add("text-clamp");
+                toggleButton.textContent = "Show more details";
+            }
+        });
+      });
+    });
+
+    // Update the subcategory dropdown based on the selected category
+    function updateSubcategoryDropdown(subcategory_choices, selectedSubcategory = '') {
+        const categoryDropdown = document.getElementById('category-dropdown');
+        const subcategoryLabel = document.getElementById('subcategory-label');
+        const subcategoryDropdown = document.getElementById('subcategory-dropdown');
+        const selectedCategory = categoryDropdown.value;
+
+        // Get the subcategories for the selected category
+        const subcategory_values = subcategory_choices[selectedCategory] || null;
+
+        // Clear current subcategory options
+        subcategoryDropdown.innerHTML = '<option value="">All</option>';
+
+        if (subcategory_values) {
+            // Add new subcategory options
+            for (const [key, value] of Object.entries(subcategory_values)) {
+                const option = document.createElement('option');
+                option.value = value;
+                option.text = key;
+                console.log('selectedSubcategory (1): ', selectedSubcategory)
+                console.log('value (1): ', value)
+
+                if (value === selectedSubcategory) {
+                    console.log('selectedSubcategory: ', selectedSubcategory)
+                    console.log('value: ', value)
+                    console.log('option: ', option)
+
+                    option.selected = true;
+                }
+                subcategoryDropdown.appendChild(option);
+            }
+            // Show the subcategory dropdown and label
+            subcategoryLabel.style.display = 'inline-block';
+            subcategoryDropdown.style.display = 'inline-block';
+        } else {
+            // Hide the subcategory dropdown and label if no subcategories
+            subcategoryLabel.style.display = 'none';
+            subcategoryDropdown.style.display = 'none';
+        }
+    }
+
+    // Automatically call the function on page load to set the subcategory if the form was submitted
+    document.addEventListener('DOMContentLoaded', function() {
+        updateSubcategoryDropdown({{ subcategory_choices|safe }}, '{{ subcategory }}');
+    });
+
+    $(document).ready(function() {
+        $('#category-dropdown').select2({
+            placeholder: "Select a category",
+            allowClear: true
+        });
+    });
+
+    // Allow multiple select dropdowns
+    $(document).ready(function() {
+        $('.multiple-select').select2({
+            placeholder: 'Select options',
+            allowClear: true,
+            width: '100%'
+        });
+    });
+
+    // Open/Close the advanced search block
+    document.getElementById('advanced-search-toggle').addEventListener('click', function(e) {
+        e.preventDefault();
+        const advancedSearchBlock = document.getElementById('advanced-search-block');
+        advancedSearchBlock.style.display = advancedSearchBlock.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Open advanced search block when data inside
+    function checkInitialConditions() {
+        const companyNameInput = document.getElementById('company_name').value;
+        const excludeWordsInput = document.getElementById('exclude_words').value;
+        const fullTextSearchCheckbox = document.getElementById('full_text_search').checked;
+
+        if (companyNameInput || excludeWordsInput || fullTextSearchCheckbox) {
+            document.getElementById('advanced-search-block').style.display = 'block';
+        }
+    }
+
+    // Check conditions when the page loads
+    document.addEventListener('DOMContentLoaded', checkInitialConditions);
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const countrySelect = document.getElementById('country');
+        const locationSelector = document.getElementById('location-selector');
+
+        function toggleLocationSelector() {
+            const selectedCountries = Array.from(countrySelect.selectedOptions).map(option => option.value);
+            if (selectedCountries.length === 1 && selectedCountries[0] === 'UKR') {
+                locationSelector.style.display = 'block';
+            } else {
+                locationSelector.style.display = 'none';
+            }
+        }
+
+        // Initialize on page load
+        toggleLocationSelector();
+
+        // Add event listener to update on change
+        countrySelect.addEventListener('change', toggleLocationSelector);
+    });
+
+    // Reset all filters
+    document.getElementById('reset-filters-button').addEventListener('click', function() {
+        // Get the base URL (without query parameters)
+        var baseUrl = window.location.pathname;
+
+        // Reload the page with the base URL
+        window.location.href = baseUrl;
+    });
+</script>
+
 {% endblock content %}
