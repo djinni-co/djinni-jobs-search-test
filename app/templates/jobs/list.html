@@ -1,64 +1,168 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <style>
+        .text-clamp {
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+            line-height: 1.3rem;
+            height: calc(1.3rem * 5);
+            overflow: hidden;
+        }
+        .text-clamp * { margin-bottom: 0; }
+        .form-range::-webkit-slider-thumb,
+        .form-range::-moz-range-thumb,
+        .form-range::-ms-thumb { background: #007bff; }
+    </style>
 
-  <style>
-    .text-clamp {
-      display: -webkit-box;
-      -webkit-line-clamp: 5;
-      -webkit-box-orient: vertical;
-      line-height: 1.3rem;
-      height: calc(1.3rem * 5);
-      overflow: hidden;
-    }
-
-    .text-clamp * {
-      margin-bottom: 0;
-    }
-  </style>
-
-  <div class="container">
-    <header class="pt-4 pb-4">
-
-      <h1>Jobs on Djinni</h1>
-      <div class="mb-4">
-        <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </div>
-          </div>
-        </form>
-      </div>
-
-    </header>
-
-    <div id="jobs_list">
-      <div class="row">
-        <div class="col-sm-8">
-
-          {% for job in jobs %}
-            <div id="job_{{job.id}}" class="mb-5">
-              <h2 class="h4 text-primary">
-                {{ job.position }}
-                {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
-                {% endif %}
-                <small class="text-secondary">at {{ job.company.name }}</small>
-              </h2>
-              <div>
-                <div class="text-clamp">
-                  {{ job.long_description|safe }}
+    <div class="container">
+        <header class="pt-4 pb-4">
+            <h1>Jobs on Djinni</h1>
+            <div class="mb-4">
+                <form id="search-form" method="GET">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <input type="search" id="search-input" name="text" value="{{ request.GET.text }}"
+                                   class="form-control" placeholder="Search jobs">
+                        </div>
+                        <div class="col-auto">
+                            <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="search_all" name="search_all"
+                           {% if request.GET.search_all == 'on' %}checked{% endif %}>
+                    <label class="form-check-label" for="search_all">
+                        Шукати по всьому тексту
+                    </label>
                 </div>
-              </div>
             </div>
-          {% endfor %}
+            <div class="mb-3" id="jobs_count">
+                Знайдено вакансій: <span class="fw-bold">{{ jobs_count }}</span>
+            </div>
+        </header>
 
+        <div class="row">
+            <div class="col-sm-8">
+                <div id="jobs_list">
+                    {% for job in jobs %}
+                        {% include "jobs/include/job_item.html" with job=job %}
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="col-lg-4 col-lg-sticky-sidebar">
+                {% include "jobs/include/filter_sidebar.html" %}
+            </div>
         </div>
-      </div>
     </div>
-  </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            const JobLoader = {
+                page: 1,
+                loading: false,
+                hasNext: true,
+
+                loadJobs: function() {
+                    if (this.loading || !this.hasNext) return;
+                    this.loading = true;
+
+                    const formData = this.getFormData();
+
+                    $.ajax({
+                        url: "{% url 'jobs:all_job_list' %}",
+                        data: { ...formData, page: this.page },
+                        dataType: "json",
+                        success: this.handleSuccess.bind(this),
+                        error: this.handleError.bind(this)
+                    });
+                },
+
+                getFormData: function() {
+                    return {
+                        text: $("#search-input").val(),
+                        search_all: $("#search_all").is(":checked"),
+                        start_date: $("#start_date").val(),
+                        end_date: $("#end_date").val(),
+                        company_name: $("#company-search").val(),
+                        min_salary: $("#min_salary").val(),
+                        remote_types: $('.remote-type:checked').map(function() { return $(this).val(); }).get().join(','),
+                        countries: $('.country:checked').map(function() { return $(this).val(); }).get().join(','),
+                        cities: $('.city:checked').map(function() { return $(this).val(); }).get().join(','),
+                        english_levels: $('.english-level:checked').map(function() { return $(this).val(); }).get().join(','),
+                        experience_years: $('.experience:checked').map(function() {
+                            return $(this).val() === '5+' ? $(this).val() : parseFloat($(this).val());
+                        }).get().join(',')
+                    };
+                },
+
+                handleSuccess: function(data) {
+                    const $jobsList = $("#jobs_list");
+                    const $jobsCount = $("#jobs_count");
+
+                    const fragment = document.createDocumentFragment();
+                    data.jobs.forEach(job => {
+                        $(this.createJobHtml(job)).appendTo(fragment);
+                    });
+
+                    $jobsList.append(fragment);
+
+                    $jobsCount.html(`Знайдено вакансій: <span class="fw-bold">${data.jobs_count}</span>`);
+
+                    this.hasNext = data.has_next;
+                    this.page++;
+                    this.loading = false;
+                },
+
+                handleError: function(error) {
+                    console.error(error);
+                    this.loading = false;
+                },
+
+                createJobHtml: function(job) {
+                    return `
+                        <div id="job_${job.id}" class="mb-5">
+                            <h2 class="h4 text-primary">
+                                ${job.position}
+                                ${job.public_salary_max ? `<span class="text-success"> до $${job.public_salary_max}</span>` : ''}
+                                <small class="text-secondary"> в ${job.company}</small>
+                            </h2>
+                            <span class="text-muted">Кількість переглядів: ${job.views_count} · </span>
+                            <span class="text-muted">Кількість відгуків: ${job.applications_count}</span>
+                            <div>
+                                <div class="text-clamp">${job.long_description}</div>
+                            </div>
+                        </div>
+                    `;
+                },
+
+                resetSearch: function() {
+                    $("#jobs_list").empty();
+                    this.page = 1;
+                    this.hasNext = true;
+                    this.loadJobs();
+                }
+            };
+
+            $("#search-form").on('submit', function(event) {
+                event.preventDefault();
+                JobLoader.resetSearch();
+            });
+
+            $("input[type='checkbox'], input[type='date'], #company-search, #min_salary").on('change', JobLoader.resetSearch.bind(JobLoader));
+
+            $(window).scroll(function() {
+                if($(window).scrollTop() + $(window).height() > $(document).height() - 100) {
+                    JobLoader.loadJobs();
+                }
+            });
+
+            // Initial load
+            JobLoader.loadJobs();
+        });
+    </script>
 {% endblock content %}

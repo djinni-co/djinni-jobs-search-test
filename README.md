@@ -88,13 +88,7 @@ web-1  | Starting development server at http://0.0.0.0:8000/
 web-1  | Quit the server with CONTROL-C.
 ```
 
-#### 4. Run migrations
-
-```
-docker compose exec web python3 app/manage.py migrate
-```
-
-#### 5. Import database  
+#### 4. Import database  
 
 See active containers list:  
 
@@ -113,6 +107,21 @@ Replace `<CONTAINER ID>` with the id of the postgres container and run the comma
 
 ```
 cat dump.sql | docker exec -i <CONTAINER ID> psql --user admin djinni_sandbox
+```
+
+For Windows:
+
+```
+docker compose cp <path to dump>dump.sql db:.
+```
+```
+docker compose exec -it db psql -U admin -d djinni_sandbox -f ./dump.sql
+```
+
+#### 5. Run migrations 
+
+```
+docker compose exec web python3 app/manage.py migrate
 ```
 
 Now open the http://0.0.0.0:8000 and you will see jobs list.

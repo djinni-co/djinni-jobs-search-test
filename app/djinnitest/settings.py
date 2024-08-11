@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
+import logging
 import os
 from pathlib import Path
 
@@ -21,12 +22,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-*eoa&fcneqhb)t*3b9(0bw(!c3_w#1!jk-@-y@52$k$k*e(bt+"
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['0.0.0.0']
+ALLOWED_HOSTS = ['0.0.0.0', '127.0.0.1']
+
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
 
 
 # Application definition
@@ -39,9 +45,11 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "jobs.apps.JobsConfig",
+    "debug_toolbar",
 ]
 
 MIDDLEWARE = [
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -49,6 +57,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "jobs.middleware.ajax_middleware.AjaxMiddleware",
 ]
 
 ROOT_URLCONF = "djinnitest.urls"
@@ -83,6 +92,17 @@ DATABASES = {
         'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
         'HOST': 'db',  # Use the service name from docker-compose.yml
         'PORT': '5432',
+    }
+}
+
+
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": os.getenv('REDIS_LOCATION'),
+        "OPTIONS": {
+            "CLIENT_CLASS": "django_redis.client.DefaultClient",
+        }
     }
 }
 
@@ -127,3 +147,60 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+# Levels: DEBUG|INFO|WARNING|ERROR|CRITICAL
+APP_LOG_LEVEL = "INFO"
+SYSTEM_LOG_LEVEL = "ERROR"
+
+LOGGING_FORMAT_VERBOSE = (
+    "[%(asctime)s: %(levelname)s/%(processName)s] " "%(name)s - %(message)s"
+)
+LOGGING_FORMAT_SIMPLE = "%(asctime)s: %(levelname)s %(message)s"
+formatter = logging.Formatter(LOGGING_FORMAT_VERBOSE)
+LOGGING = {
+    "version": 1,
+    "formatters": {
+        "verbose": {
+            "format": LOGGING_FORMAT_VERBOSE,
+            # 'datefmt': '%d/%b/%Y %H:%M:%S'
+        },
+        "simple": {
+            "format": LOGGING_FORMAT_SIMPLE,
+            # 'datefmt': '%d/%b/%Y %H:%M:%S'
+        },
+    },
+    "filters": {
+        "require_debug_true": {
+            "()": "django.utils.log.RequireDebugTrue",
+        },
+    },
+    "handlers": {
+        "console": {
+            "level": "DEBUG",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+    },
+    "root": {
+        "handlers": ["console"],
+        "level": SYSTEM_LOG_LEVEL,
+    },
+    "loggers": {
+        "django.db.backends": {  # django|django.db.backends
+            "handlers": ["console"],
+            "level": SYSTEM_LOG_LEVEL,
+            "propagate": False,
+        },
+        "djinnitest": {
+            "handlers": ["console"],
+            "level": APP_LOG_LEVEL,
+            "propagate": False,
+        },
+        "jobs": {
+            "handlers": ["console"],
+            "level": APP_LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+}

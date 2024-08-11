@@ -1,12 +1,19 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.postgres.search import SearchVector
+
 
 class Experience(models.TextChoices):
-        ZERO = "no_exp", _("No experience")
-        ONE = "1y", _("1 year")
-        TWO = "2y", _("2 years")
-        THREE = "3y", _("3 years")
-        FIVE = "5y", _("5 years")
+    ZERO = "no_exp", _("No experience")
+    ONE = "1y", _("1 year")
+    TWO = "2y", _("2 years")
+    THREE = "3y", _("3 years")
+    FIVE = "5y", _("5 years")
+
 
 class RemoteType(models.TextChoices):
     OFFICE = "office", _("Office Work")
@@ -14,10 +21,12 @@ class RemoteType(models.TextChoices):
     FULL_REMOTE = "full_remote", _("Full Remote")
     CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
 
+
 class RelocateType(models.TextChoices):
     NO_RELOCATE = "no_relocate", _("No relocation")
     CANDIDATE_PAID = "candidate_paid", _("Covered by candidate")
     COMPANY_PAID = "company_paid", _("Covered by company")
+
 
 class AcceptRegion(models.TextChoices):
     OFFICE_LOCATIONS = "office_locations", _("Office locations")
@@ -27,6 +36,7 @@ class AcceptRegion(models.TextChoices):
     EUROPE = "europe", _("Ukraine + Europe")
     CUSTOM_SELECTION = "custom_selection", _("Custom selection")
 
+
 class EnglishLevel(models.TextChoices):
     NONE = ("no_english", "No English")
     BASIC = ("basic", "Beginner/Elementary")
@@ -34,6 +44,7 @@ class EnglishLevel(models.TextChoices):
     INTERMEDIATE = ("intermediate", "Intermediate")
     UPPER = ("upper", "Upper-Intermediate")
     FLUENT = ("fluent", "Advanced/Fluent")
+
 
 class JobDomain(models.TextChoices):
     ADULT = "adult", "Adult"
@@ -59,6 +70,7 @@ class JobDomain(models.TextChoices):
     TRAVEL = "travel", "Travel / Tourism"
     OTHER = "other", "Other"
 
+
 class CompanyType(models.TextChoices):
     AGENCY = "agency", _("Agency")
     OUTSOURCE = "outsource", _("Outsource")
@@ -66,11 +78,13 @@ class CompanyType(models.TextChoices):
     PRODUCT = "product", _("Product")
     STARTUP = "startup", _("Startup")
 
+
 class RemoteType(models.TextChoices):
-        OFFICE = "office", _("Office Work")
-        PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
-        FULL_REMOTE = "full_remote", _("Full Remote")
-        CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
+    OFFICE = "office", _("Office Work")
+    PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
+    FULL_REMOTE = "full_remote", _("Full Remote")
+    CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
+
 
 class CompanyType(models.TextChoices):
     AGENCY = ("agency/freelance", "agency/freelance")
@@ -94,7 +108,7 @@ class JobPosting(models.Model):
         FAILED = "failed", _("Failed")
 
     # Job description fields
-    position = models.CharField(max_length=250, blank=False, default='')
+    position = models.CharField(max_length=250, blank=False, default='', db_index=True)
     primary_keyword = models.CharField(max_length=50, blank=True, default="", null=True)
     secondary_keyword = models.CharField(max_length=50, blank=True, default="", null=True)
     long_description = models.TextField(blank=True, default='')
@@ -172,6 +186,14 @@ class JobPosting(models.Model):
     last_modified = models.DateTimeField(blank=True, null=True, auto_now=True, db_index=True)
     published = models.DateTimeField(blank=True, null=True, db_index=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+    search_vector = SearchVectorField(null=True)
+
+    class Meta:
+        indexes = [GinIndex(fields=['search_vector'])]
+
+    @property
+    def company_name(self):
+        return self.company.name
 
 
 class Recruiter(models.Model):
@@ -179,6 +201,7 @@ class Recruiter(models.Model):
     name = models.CharField(max_length=250, blank=False, default="")
     company_id = models.IntegerField(blank=True, null=True)
     slug = models.SlugField()
+
 
 class Company(models.Model):
     name = models.CharField(max_length=250, blank=False, default="")
@@ -198,3 +221,13 @@ class Company(models.Model):
     )
     logo_url = models.CharField(max_length=255, blank=True, null=True, default="")
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+
+@receiver(post_save, sender=JobPosting)
+def update_search_vector(sender, instance, **kwargs):
+    if kwargs.get('update_fields') != ['search_vector']:
+        instance.search_vector = SearchVector(
+            'position', 'long_description', 'primary_keyword',
+            'secondary_keyword', 'extra_keywords'
+        )
+        JobPosting.objects.filter(pk=instance.pk).update(search_vector=instance.search_vector)
