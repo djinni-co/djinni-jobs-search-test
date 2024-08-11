@@ -1,0 +1,16 @@
+<div id="job_{{ job.id }}" class="mb-5">
+    <h2 class="h4 text-primary">
+        {{ job.position }}
+        {% if job.public_salary_max %}
+            <span class="text-success">до ${{ job.public_salary_max }}</span>
+        {% endif %}
+        <small class="text-secondary">в {{ job.company.name }}</small>
+    </h2>
+    <span class="text-muted">Кількість переглядів: {{ job.views_count }} · </span>
+    <span class="text-muted">Кількість відгуків: {{ job.applications_count }}</span>
+    <div>
+        <div class="text-clamp">
+            {{ job.long_description|safe }}
+        </div>
+    </div>
+</div>

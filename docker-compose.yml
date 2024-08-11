@@ -8,10 +8,14 @@ services:
     command: python app/manage.py runserver 0.0.0.0:8000
     environment:
       - DEBUG=True
+      - SECRET_KEY=${SECRET_KEY}
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - DJANGO_SETTINGS_MODULE=${DJANGO_SETTINGS_MODULE}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_LOCATION=${REDIS_LOCATION}
 
   db:
     image: postgres:latest
@@ -20,4 +24,14 @@ services:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - 5432:5432
+      - "5432:5432"
+
+  redis:
+    environment:
+      - REDIS_LOCATION=${REDIS_LOCATION}
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+volumes:
+  redis_data:

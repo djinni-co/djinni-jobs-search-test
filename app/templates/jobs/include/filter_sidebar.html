@@ -1,0 +1,140 @@
+<div class="mt-3">
+    <label for="start_date" class="form-label">Дата публікації від:</label>
+    <input type="date" class="form-control" id="start_date" name="start_date">
+</div>
+<div class="mt-2">
+    <label for="end_date" class="form-label">Дата публікації до:</label>
+    <input type="date" class="form-control" id="end_date" name="end_date">
+</div>
+
+<div class="mt-3">
+    <label for="company-search" class="form-label">Пошук за назвою компанії:</label>
+    <input type="text" class="form-control" id="company-search" placeholder="Введіть назву компанії">
+</div>
+
+<div class="mt-3">
+    <label for="min_salary" class="form-label">Зарплата від:</label>
+    <input type="number" class="form-control" id="min_salary" name="min_salary" min="0" placeholder="Введіть мінімальну суму">
+</div>
+
+<div class="mt-3">
+    <label class="form-label">Формат роботи:</label>
+    <div class="btn-group" role="group" aria-label="Remote Type">
+        <input type="checkbox" class="btn-check remote-type" id="full_remote" value="full_remote" autocomplete="off">
+        <label class="btn btn-outline-primary" for="full_remote">Віддалено</label>
+        
+        <input type="checkbox" class="btn-check remote-type" id="partly_remote" value="partly_remote" autocomplete="off">
+        <label class="btn btn-outline-primary" for="partly_remote">Гібрид</label>
+        
+        <input type="checkbox" class="btn-check remote-type" id="office" value="office" autocomplete="off">
+        <label class="btn btn-outline-primary" for="office">Офіс</label>
+        
+        <input type="checkbox" class="btn-check remote-type" id="candidate_choice" value="candidate_choice" autocomplete="off">
+        <label class="btn btn-outline-primary" for="candidate_choice">На ваш вибір</label>
+    </div>
+</div>
+
+<div class="mt-3">
+    <label class="form-label">Країна:</label>
+    <div class="btn-group" role="group" aria-label="Country">
+        <input type="checkbox" class="btn-check country" id="UKR" value="UKR" autocomplete="off">
+        <label class="btn btn-outline-primary" for="UKR">Україна</label>
+
+        <input type="checkbox" class="btn-check country" id="POL" value="POL" autocomplete="off">
+        <label class="btn btn-outline-primary" for="POL">Польща</label>
+
+        <input type="checkbox" class="btn-check country" id="USA" value="USA" autocomplete="off">
+        <label class="btn btn-outline-primary" for="USA">США</label>
+
+        <input type="checkbox" class="btn-check country" id="OTHER" value="OTHER" autocomplete="off">
+        <label class="btn btn-outline-primary" for="OTHER">Інші країни</label>
+    </div>
+</div>
+
+<div class="mt-3">
+    <label class="form-label">Місто:</label>
+    <div class="btn-group" role="group" aria-label="City">
+        <input type="checkbox" class="btn-check city" id="Kyiv" value="Киев" autocomplete="off">
+        <label class="btn btn-outline-primary" for="Kyiv">Київ</label>
+
+        <input type="checkbox" class="btn-check city" id="Lviv" value="Львов" autocomplete="off">
+        <label class="btn btn-outline-primary" for="Lviv">Львів</label>
+
+        <input type="checkbox" class="btn-check city" id="Kharkiv" value="Харьков" autocomplete="off">
+        <label class="btn btn-outline-primary" for="Kharkiv">Харків</label>
+
+        <input type="checkbox" class="btn-check city" id="OTHER_CITY" value="OTHER" autocomplete="off">
+        <label class="btn btn-outline-primary" for="OTHER_CITY">Інші міста</label>
+    </div>
+</div>
+
+<div class="mt-3">
+    <label class="form-label">English level:</label>
+    <div class="d-flex flex-wrap">
+        <div class="btn-group mb-2 me-2" role="group" aria-label="English Level Basic to Intermediate">
+            <input type="checkbox" class="btn-check english-level" id="basic" value="basic" autocomplete="off">
+            <label class="btn btn-outline-primary" for="basic">Basic</label>
+
+            <input type="checkbox" class="btn-check english-level" id="pre" value="pre" autocomplete="off">
+            <label class="btn btn-outline-primary" for="pre">Pre-Intermediate</label>
+
+            <input type="checkbox" class="btn-check english-level" id="intermediate" value="intermediate" autocomplete="off">
+            <label class="btn btn-outline-primary" for="intermediate">Intermediate</label>
+        </div>
+        <div class="btn-group mb-2" role="group" aria-label="English Level Upper to No English">
+            <input type="checkbox" class="btn-check english-level" id="upper" value="upper" autocomplete="off">
+            <label class="btn btn-outline-primary" for="upper">Upper-Intermediate</label>
+
+            <input type="checkbox" class="btn-check english-level" id="fluent" value="fluent" autocomplete="off">
+            <label class="btn btn-outline-primary" for="fluent">Fluent</label>
+
+            <input type="checkbox" class="btn-check english-level" id="no_english" value="no_english" autocomplete="off">
+            <label class="btn btn-outline-primary" for="no_english">No English</label>
+        </div>
+    </div>
+</div>
+
+<div class="mt-3">
+    <label class="form-label">Досвід роботи:</label>
+    <div class="btn-group-vertical" role="group" aria-label="Experience">
+        <div class="btn-group" role="group">
+            <input type="checkbox" class="btn-check experience" id="exp_0" value="0" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_0">0 років</label>
+
+            <input type="checkbox" class="btn-check experience" id="exp_0_5" value="0.5" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_0_5">0.5 років</label>
+
+            <input type="checkbox" class="btn-check experience" id="exp_1" value="1" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_1">1 рік</label>
+
+            <input type="checkbox" class="btn-check experience" id="exp_1_5" value="1.5" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_1_5">1.5 рік</label>
+        </div>
+        <div class="btn-group" role="group">
+            <input type="checkbox" class="btn-check experience" id="exp_2" value="2" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_2">2 роки</label>
+
+            <input type="checkbox" class="btn-check experience" id="exp_2_5" value="2.5" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_2_5">2.5 роки</label>
+
+            <input type="checkbox" class="btn-check experience" id="exp_3" value="3" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_3">3 роки</label>
+
+            <input type="checkbox" class="btn-check experience" id="exp_3_5" value="3.5" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_3_5">3.5 роки</label>
+        </div>
+        <div class="btn-group" role="group">
+            <input type="checkbox" class="btn-check experience" id="exp_4" value="4" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_4">4 роки</label>
+
+            <input type="checkbox" class="btn-check experience" id="exp_4_5" value="4.5" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_4_5">4.5 роки</label>
+
+            <input type="checkbox" class="btn-check experience" id="exp_5" value="5" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_5">5 років</label>
+
+            <input type="checkbox" class="btn-check experience" id="exp_more_5" value="5+" autocomplete="off">
+            <label class="btn btn-outline-primary" for="exp_more_5">5+ років</label>
+        </div>
+    </div>
+</div>
