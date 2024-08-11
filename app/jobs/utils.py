@@ -1,5 +1,5 @@
 from typing import Tuple
-from jobs.models import JobPosting, Company
+from jobs.models import JobPosting, Company, Location
 from django.db.models import Q
 from django.contrib.postgres.aggregates import StringAgg
 from django.db.models import F
@@ -48,6 +48,8 @@ def category_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -
     experience_level = form.cleaned_data.get("selected_experience_level")
     salary = form.cleaned_data.get("salary")
     selected_company = form.cleaned_data.get("selected_company")
+    selected_country = form.cleaned_data.get("selected_country")
+    selected_location = form.cleaned_data.get("selected_location")
 
     if category != "":
         jobs = jobs.filter(primary_keyword=category)
@@ -58,12 +60,18 @@ def category_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -
         jobs = jobs.filter(salary_min__gte=salary)
     if selected_company:
         jobs = jobs.filter(company__name=selected_company)
+    if selected_country:
+        jobs = filter_by_country(jobs, selected_country)
+    if selected_location:
+        jobs = filter_by_location(jobs, form, selected_location)
 
     context = {
         "selected_category": category,
         "selected_remote_type": remote_type,
         "selected_english_level": english_level,
-        "selected_experience_level": experience_level
+        "selected_experience_level": experience_level,
+        "countries": get_runtime_countries(),
+        "locations": form.location_choices
     } | context_arg
 
     return jobs, context
@@ -78,7 +86,8 @@ def order_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -> T
         jobs = jobs.order_by(order)
 
     context = {
-        "selected_order": order
+        "selected_order": order,
+        "order_selection_form": form
     }
 
     return jobs, context | context_arg
@@ -86,7 +95,6 @@ def order_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -> T
 
 # Not in use
 def get_runtime_locations():
-    # get distinct locations and write them to all_locations
     locations_combined = JobPosting.objects.annotate(
         all_locations=StringAgg(F('location'), delimiter=',')
     ).values('all_locations')
@@ -100,6 +108,11 @@ def get_runtime_locations():
 
 
 def get_runtime_companies():
+    """
+    There may be some companies in dropdown menu that don't have
+    corresponding job_posting. But this is still faster than to
+    find all distinct companies in job postings
+    """
     locations_combined = Company.objects.annotate(
         all_companies=StringAgg(F('name'), delimiter='')
     ).values('all_companies')
@@ -112,7 +125,7 @@ def get_runtime_companies():
     return [(value, value) for value in unique_companies]
 
 
-def get_runtime_counties():
+def get_runtime_countries():
     # get distinct countries
     countries_combined = JobPosting.objects.annotate(
         all_countries=StringAgg(F('country'), delimiter=',')
@@ -120,14 +133,11 @@ def get_runtime_counties():
 
     # get readable country name
     unique_countries = set()
-    return_country = []
     for entry in countries_combined:
         countries = entry['all_countries'].split(',')
         unique_countries.update([country.strip() for country in countries])
-    for country in unique_countries:
-        if country != '':
-            return_country.append(country_name_from_code(country))
-    return return_country
+
+    return [(value, country_name_from_code(value)) for value in unique_countries]
 
 
 def filter_by_query(jobs: QuerySet, query: str, position_only: bool, description_only: bool) -> QuerySet:
@@ -246,6 +256,21 @@ def experience_selection_handler(jobs: QuerySet, experience_level: str) -> Query
 
     return jobs
 
+
+def filter_by_location(jobs: QuerySet, form: forms.Form, selection: str) -> QuerySet:
+    locations = {str(choices[1]): str(choices[0]) for choices in form.location_choices}
+
+    jobs = jobs.filter(location__icontains=locations.get(selection))
+
+    return jobs
+
+
+def filter_by_country(jobs: QuerySet, selection: str) -> QuerySet:
+    countries = {str(choices[1]): str(choices[0]) for choices in get_runtime_countries()}
+
+    jobs = jobs.filter(country=countries.get(selection))
+
+    return jobs
 
 def country_name_from_code(code: str) -> str:
     """

@@ -1,7 +1,8 @@
 from django.shortcuts import render
 
 from jobs.models import JobPosting
-from jobs.utils import q_form_handler, category_form_handler, order_form_handler, paginate_jobs, get_runtime_companies
+from jobs.utils import q_form_handler, category_form_handler, order_form_handler, paginate_jobs, get_runtime_companies, \
+    get_runtime_countries
 from jobs.forms import JobFilterForm, CategoryFilterForm, OrderSelectionForm
 import random
 from django.db import transaction
@@ -12,7 +13,7 @@ def jobs_list(request):
     form = JobFilterForm(request.GET)
 
     companies = get_runtime_companies()
-    category_form = CategoryFilterForm(request.GET, companies)
+    category_form = CategoryFilterForm(request.GET)
 
     order_selection_form = OrderSelectionForm(request.GET)
     jobs = JobPosting.objects.all()
@@ -46,7 +47,7 @@ def jobs_list(request):
         "page_obj": jobs_list,
         "is_paginated": jobs_list.has_other_pages(),
         "querystring": querystring,
-        "companies": companies
+        "companies": companies,
     } | context
 
     return render(request, "jobs/list.html", render_context)

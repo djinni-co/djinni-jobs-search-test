@@ -1,5 +1,5 @@
 from django import forms
-from jobs.models import Category, RemoteType, EnglishLevel, RelocateType, Experience
+from jobs.models import Category, RemoteType, EnglishLevel, RelocateType, Experience, Location
 
 
 class JobFilterForm(forms.Form):
@@ -57,9 +57,23 @@ class CategoryFilterForm(forms.Form):
     selected_experience_level = forms.CharField(widget=forms.HiddenInput(), required=False)
     selected_company = forms.CharField(
         required=False,
-        label="Select company",
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Start typing company name', 'id': 'companies'})
+        label="Select company from dropdown",
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Start typing company name', 'id': 'companies'})
     )
+    selected_country = forms.CharField(
+        required=False,
+        label="Select country from dropdown",
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Start typing country', 'id': 'countries'})
+    )
+    selected_location = forms.CharField(
+        required=False,
+        label="Select location from dropdown",
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Start typing location', 'id': 'locations', 'disabled': True})
+    )
+
     salary = forms.IntegerField(required=False)
 
     def __init__(self, *args, **kwargs):
@@ -72,3 +86,5 @@ class CategoryFilterForm(forms.Form):
         self.english_level_choices = [(value, label) for value, label in english_level]
         experience_level = Experience.choices
         self.experience_level_choices = [(value, label) for value, label in experience_level]
+        locations = Location.choices
+        self.location_choices = [(value, label) for value, label in locations]
