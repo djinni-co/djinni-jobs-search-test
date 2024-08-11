@@ -1,5 +1,5 @@
 from typing import Tuple
-
+from jobs.models import JobPosting
 from django.db.models import Q
 from django.contrib.postgres.aggregates import StringAgg
 from django.db.models import F
@@ -9,6 +9,7 @@ from functools import reduce
 import operator
 from django.db.models.query import QuerySet
 import re
+import pycountry
 
 
 def word_boundary_regex(word: str) -> str:
@@ -78,6 +79,43 @@ def order_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -> T
     }
 
     return jobs, context | context_arg
+
+
+def get_runtime_data():
+
+    return get_runtime_locations(), get_runtime_counties()
+
+
+def get_runtime_locations():
+    # get distinct locations and write them to all_locations
+    locations_combined = JobPosting.objects.annotate(
+        all_locations=StringAgg(F('location'), delimiter=',')
+    ).values('all_locations')
+
+    # split locations and use Python set built-in to delete similarities
+    unique_cities = set()
+    for entry in locations_combined:
+        cities = entry['all_locations'].split(',')
+        unique_cities.update([city.strip() for city in cities])
+    return unique_cities
+
+
+def get_runtime_counties():
+    # get distinct countries
+    countries_combined = JobPosting.objects.annotate(
+        all_countries=StringAgg(F('country'), delimiter=',')
+    ).values('all_countries')
+
+    # get readable country name
+    unique_countries = set()
+    return_country = []
+    for entry in countries_combined:
+        countries = entry['all_countries'].split(',')
+        unique_countries.update([country.strip() for country in countries])
+    for country in unique_countries:
+        if country != '':
+            return_country.append(country_name_from_code(country))
+    return return_country
 
 
 def filter_by_query(jobs: QuerySet, query: str, position_only: bool, description_only: bool) -> QuerySet:
@@ -157,6 +195,7 @@ def paginate_jobs(jobs: QuerySet, page: int, jobs_per_page: int) -> Tuple[Page, 
         jobs_list = paginator.page(paginator.num_pages)
     return jobs_list, paginator
 
+
 def english_selection_handler(jobs: QuerySet, english_level: str) -> QuerySet:
     # Define the hierarchy of English levels
     english_level_hierarchy = {
@@ -194,3 +233,13 @@ def experience_selection_handler(jobs: QuerySet, experience_level: str) -> Query
             )
 
     return jobs
+
+
+def country_name_from_code(code: str) -> str:
+    """
+    Get human-readable country name from 3-letter code
+    """
+    try:
+        return pycountry.countries.get(alpha_3=code).name
+    except AttributeError:
+        return ''
