@@ -36,7 +36,7 @@ def q_form_handler(jobs: QuerySet, form: forms.Form) -> QuerySet:
     return jobs
 
 
-def category_form_handler(jobs: QuerySet, form: forms.Form) -> Tuple[QuerySet, dict]:
+def category_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -> Tuple[QuerySet, dict]:
     """
     Handle job postings filtering by category form user input and return tuple containing
     filtered job postings and predefined context(needed for template rendering)
@@ -60,9 +60,24 @@ def category_form_handler(jobs: QuerySet, form: forms.Form) -> Tuple[QuerySet, d
         "selected_remote_type": remote_type,
         "selected_english_level": english_level,
         "selected_experience_level": experience_level
-    }
+    } | context_arg
 
     return jobs, context
+
+
+def order_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -> Tuple[QuerySet, dict]:
+    """
+    Order job postings by applications or publishing dates
+    """
+    order = form.cleaned_data.get("selected_order")
+    if order:
+        jobs = jobs.order_by(f"-{order}")
+
+    context = {
+        "selected_order": order
+    }
+
+    return jobs, context | context_arg
 
 
 def filter_by_query(jobs: QuerySet, query: str, position_only: bool, description_only: bool) -> QuerySet:

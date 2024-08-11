@@ -121,6 +121,9 @@
           {% if selected_experience_level %}
             <button class="badge bg-primary btn btn-link" onclick="resetFilter('selected_experience_level')">{{ selected_experience_level }}</button>
           {% endif %}
+          {% if selected_order %}
+            <button class="badge bg-primary btn btn-link" onclick="resetFilter('selected_order')">{{ selected_order }}</button>
+          {% endif %}
         </div>
         <div class="form-group mb-3">
           {{ form.q.label_tag }}
@@ -147,6 +150,19 @@
         <div class="form-group mb-3">
           {{ form.exclude_keywords.label_tag }}
           {{ form.exclude_keywords }}
+        </div>
+        <div class="form-group mb-3">
+          <label>Order by</label>
+          <div class="category-buttons mb-3">
+          {% for value, label in order_selection_form.order_choices %}
+            <div class="checkbox-wrapper mb-1">
+                <input type="checkbox" id="order_{{ value }}" name="selected_order" value="{{ value }}"
+                       {% if value == selected_order %}checked{% endif %}
+                onclick="onlyOne(this)">
+                <label for="order_{{ value }}">{{ label }}</label>
+            </div>
+          {% endfor %}
+          </div>
         </div>
         <button type="submit" class="btn btn-primary">Search</button>
 
@@ -236,6 +252,8 @@
                   <b class="text-secondary">primary keyword: {{ job.primary_keyword }}; </b>
                   <b class="text-secondary">remote type: {{ job.remote_type }}; </b>
                   <b class="text-secondary">experience_level: {{ job.experience_years }}; </b>
+                  <b class="text-secondary">applications: {{ job.applications_count }}; </b>
+                  <b class="text-secondary">published: {{ job.published }}; </b>
                 </h6>
                 {{ job.long_description|safe }}
               </div>

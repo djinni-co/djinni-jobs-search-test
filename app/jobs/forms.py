@@ -1,6 +1,7 @@
 from django import forms
 from jobs.models import Category, RemoteType, EnglishLevel, RelocateType, Experience
 
+
 class JobFilterForm(forms.Form):
     """
     Construct initial form to filter jobs
@@ -30,6 +31,19 @@ class JobFilterForm(forms.Form):
         label="Exclude Keywords",
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter keywords separated by space'})
     )
+
+
+class OrderSelectionForm(forms.Form):
+    """
+    Order job postings by these fields
+    """
+    selected_order = forms.CharField(widget=forms.HiddenInput(), required=False)
+
+    def __init__(self, *args, **kwargs):
+        super(OrderSelectionForm, self).__init__(*args, **kwargs)
+        self.order_choices = [("applications_count", "Application counts"),
+                              ("published", "Publishing Date")]
+
 
 class CategoryFilterForm(forms.Form):
     """
