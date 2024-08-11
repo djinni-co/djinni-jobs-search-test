@@ -1,64 +1,27 @@
 {% extends "base.html" %}
+{% load static %} <!-- Load the static template tag here -->
 
 {% block content %}
+<!-- Include Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-    .text-clamp {
-      display: -webkit-box;
-      -webkit-line-clamp: 5;
-      -webkit-box-orient: vertical;
-      line-height: 1.3rem;
-      height: calc(1.3rem * 5);
-      overflow: hidden;
-    }
+<!-- Include custom CSS -->
+<link href="{% static 'css/jobs.css' %}" rel="stylesheet">
 
-    .text-clamp * {
-      margin-bottom: 0;
-    }
-  </style>
+<div class="container">
+  <header class="pt-4 pb-4">
+    <h1>Jobs on Djinni</h1>
 
-  <div class="container">
-    <header class="pt-4 pb-4">
+    {% include 'jobs/filters.html' %}
+    {% include 'jobs/job_list.html' %}
+    {% include 'jobs/pagination.html' %}
+  </header>
+</div>
 
-      <h1>Jobs on Djinni</h1>
-      <div class="mb-4">
-        <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </div>
-          </div>
-        </form>
-      </div>
+<!-- Include Bootstrap JS and Popper.js -->
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.6/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    </header>
-
-    <div id="jobs_list">
-      <div class="row">
-        <div class="col-sm-8">
-
-          {% for job in jobs %}
-            <div id="job_{{job.id}}" class="mb-5">
-              <h2 class="h4 text-primary">
-                {{ job.position }}
-                {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
-                {% endif %}
-                <small class="text-secondary">at {{ job.company.name }}</small>
-              </h2>
-              <div>
-                <div class="text-clamp">
-                  {{ job.long_description|safe }}
-                </div>
-              </div>
-            </div>
-          {% endfor %}
-
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- Include custom JS -->
+<script src="{% static 'js/jobs.js' %}"></script>
 {% endblock content %}

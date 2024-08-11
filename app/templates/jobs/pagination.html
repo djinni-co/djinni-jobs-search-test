@@ -1,0 +1,58 @@
+<!-- Pagination Controls -->
+<nav aria-label="Job pagination">
+    <ul class="pagination justify-content-center">
+        {% if jobs.has_previous %}
+        <li class="page-item">
+            <a class="page-link"
+                href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ jobs.previous_page_number }}"
+                aria-label="Previous">
+                &laquo;
+            </a>
+        </li>
+        {% endif %}
+
+        <!-- First Page -->
+        <li class="page-item {% if jobs.number == 1 %}active{% endif %}">
+            <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page=1">1</a>
+        </li>
+
+        <!-- Dots before surrounding pages -->
+        {% if jobs.number > 6 %}
+        <li class="page-item disabled"><span class="page-link">...</span></li>
+        {% endif %}
+
+        <!-- Surrounding Pages -->
+        {% for num in jobs.paginator.page_range %}
+        {% if num > jobs.number|add:-5 and num < jobs.number|add:5 %} <li
+            class="page-item {% if jobs.number == num %}active{% endif %}">
+            <a class="page-link" href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ num }}">
+                {{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            <!-- Dots after surrounding pages -->
+            {% if jobs.number < jobs.paginator.num_pages|add:-5 %} <li class="page-item disabled"><span
+                    class="page-link">...</span></li>
+                {% endif %}
+
+                <!-- Last Page -->
+                {% if jobs.number < jobs.paginator.num_pages|add:-4 %} <li
+                    class="page-item {% if jobs.number == jobs.paginator.num_pages %}active{% endif %}">
+                    <a class="page-link"
+                        href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ jobs.paginator.num_pages }}">
+                        {{ jobs.paginator.num_pages }}</a>
+                    </li>
+                    {% endif %}
+
+                    {% if jobs.has_next %}
+                    <li class="page-item">
+                        <a class="page-link"
+                            href="?{% if request.GET %}{{ request.GET.urlencode }}&{% endif %}page={{ jobs.next_page_number }}"
+                            aria-label="Next">
+                            &raquo;
+                        </a>
+                    </li>
+                    {% endif %}
+    </ul>
+</nav>
