@@ -2,103 +2,11 @@
 
 {% block content %}
 
-<style>
-  .text-clamp {
-    display: -webkit-box;
-    -webkit-line-clamp: 10;
-    -webkit-box-orient: vertical;
-    line-height: 1.3rem;
-    height: calc(1.3rem * 10);
-    overflow: hidden;
-  }
+{% load static %}
 
-  .text-clamp * {
-    margin-bottom: 0;
-  }
-
-  .category-checkboxes {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-  }
-
-  .checkbox-wrapper {
-      display: inline-block;
-      margin-right: 10px;
-  }
-
-  .checkbox-wrapper input[type="checkbox"] {
-      position: absolute;
-      opacity: 0;
-      cursor: pointer;
-  }
-
-  .checkbox-wrapper label {
-      padding: 5px 10px;
-      border: 1px solid #007bff;
-      border-radius: 4px;
-      background-color: #f8f9fa;
-      color: #007bff;
-      cursor: pointer;
-      display: inline-block;
-      transition: background-color 0.3s ease, color 0.3s ease;
-      font-size: 14px;
-      white-space: nowrap;
-  }
-
-  .checkbox-wrapper input[type="checkbox"]:checked + label {
-      background-color: #007bff;
-      color: #fff;
-  }
-
-  .checkbox-wrapper label:hover {
-      background-color: #e2e6ea;
-  }
-  .slider-container {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .slider-container input[type="range"] {
-    flex: 1;
-  }
-
-  .slider-container span {
-    min-width: 80px;
-    text-align: right;
-  }
-</style>
-
-<!--Select only one checkbox-->
-<!--Reset selected filters-->
-<!--Update salary label-->
-<!--Reset all filters-->
-<script>
-  function onlyOne(checkbox) {
-    var checkboxes = document.getElementsByName(checkbox.name)
-    checkboxes.forEach((item) => {
-        if (item !== checkbox) item.checked = false
-    })
-}
-  function resetFilter(filterName) {
-    var checkboxes = document.getElementsByName(filterName);
-    checkboxes.forEach((checkbox) => {
-      checkbox.checked = false;
-    });
-    document.getElementById('filter-form').submit();
-  }
-  function updateSalaryValue(value) {
-    document.getElementById('salary_value').textContent = value;
-  }
-  function resetFilters() {
-    var form = document.getElementById('filter-form');
-    form.reset();
-    var url = new URL(window.location.href);
-    url.search = '';
-    window.location.href = url;
-  }
-</script>
+<head>
+  <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
 
 <div class="container">
   <header class="pt-4 pb-4">
@@ -311,5 +219,38 @@
     </div>
   </div>
 </div>
+
+<script>
+  // Select only one checkbox
+  function onlyOne(checkbox) {
+    var checkboxes = document.getElementsByName(checkbox.name)
+    checkboxes.forEach((item) => {
+        if (item !== checkbox) item.checked = false
+    })
+}
+
+  // Reset selected filters
+  function resetFilter(filterName) {
+    var checkboxes = document.getElementsByName(filterName);
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+    document.getElementById('filter-form').submit();
+  }
+
+  // Update salary label
+  function updateSalaryValue(value) {
+    document.getElementById('salary_value').textContent = value;
+  }
+
+  // Reset all filters
+  function resetFilters() {
+    var form = document.getElementById('filter-form');
+    form.reset();
+    var url = new URL(window.location.href);
+    url.search = '';
+    window.location.href = url;
+  }
+</script>
 
 {% endblock content %}
