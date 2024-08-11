@@ -260,7 +260,10 @@ def experience_selection_handler(jobs: QuerySet, experience_level: str) -> Query
 def filter_by_location(jobs: QuerySet, form: forms.Form, selection: str) -> QuerySet:
     locations = {str(choices[1]): str(choices[0]) for choices in form.location_choices}
 
-    jobs = jobs.filter(location__icontains=locations.get(selection))
+    try:
+        jobs = jobs.filter(location__icontains=locations.get(selection))
+    except ValueError:
+        jobs = jobs.filter(location__icontains=selection)
 
     return jobs
 
@@ -268,7 +271,10 @@ def filter_by_location(jobs: QuerySet, form: forms.Form, selection: str) -> Quer
 def filter_by_country(jobs: QuerySet, selection: str) -> QuerySet:
     countries = {str(choices[1]): str(choices[0]) for choices in get_runtime_countries()}
 
-    jobs = jobs.filter(country=countries.get(selection))
+    try:
+        jobs = jobs.filter(country__icontains=countries.get(selection))
+    except ValueError:
+        jobs = jobs.filter(country__icontains=selection)
 
     return jobs
 
