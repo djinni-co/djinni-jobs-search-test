@@ -55,6 +55,11 @@ class CategoryFilterForm(forms.Form):
     selected_remote_type = forms.CharField(widget=forms.HiddenInput(), required=False)
     selected_english_level = forms.CharField(widget=forms.HiddenInput(), required=False)
     selected_experience_level = forms.CharField(widget=forms.HiddenInput(), required=False)
+    selected_company = forms.CharField(
+        required=False,
+        label="Select company",
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Start typing company name', 'id': 'companies'})
+    )
     salary = forms.IntegerField(required=False)
 
     def __init__(self, *args, **kwargs):

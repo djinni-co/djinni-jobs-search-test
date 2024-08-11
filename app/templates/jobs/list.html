@@ -5,7 +5,11 @@
 {% load static %}
 
 <head>
-  <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/ui-lightness/jquery-ui.css"
+      rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
 </head>
 
 <div class="container">
@@ -59,6 +63,7 @@
           {{ form.exclude_keywords.label_tag }}
           {{ form.exclude_keywords }}
         </div>
+        <!-- Ordering selection -->
         <div class="form-group mb-3">
           <label>Order by</label>
           <div class="category-buttons mb-3">
@@ -74,6 +79,7 @@
         </div>
         <button type="submit" class="btn btn-primary">Search</button>
 
+        <!-- Category selection -->
         <div class="form-group mb-4">
           <label>Category</label>
           <div class="category-buttons mb-3">
@@ -87,6 +93,8 @@
           {% endfor %}
           </div>
         </div>
+
+        <!-- Remote type selection -->
         <div class="form-group mb-4">
           <label>Remote type</label>
           <div class="category-buttons mb-3">
@@ -100,6 +108,8 @@
           {% endfor %}
           </div>
         </div>
+
+        <!-- English level selection -->
         <div class="form-group mb-4">
           <label>English level</label>
           <div class="category-buttons mb-3">
@@ -113,6 +123,8 @@
           {% endfor %}
           </div>
         </div>
+
+        <!-- Experience level selection -->
         <div class="form-group mb-4">
           <label>Experience level</label>
           <div class="category-buttons mb-3">
@@ -126,6 +138,7 @@
           {% endfor %}
           </div>
         </div>
+        <!-- Salary range selection -->
         <div class="form-group mb-4">
           <label for="salary_range">Salary starting from:</label>
           <div class="slider-container">
@@ -133,6 +146,13 @@
             <span id="salary_value">{{ category_filter_form.salary.value|default:0 }}</span> USD
           </div>
         </div>
+
+        <!--Company selection-->
+        <div class="form-group mb-4">
+          {{ category_filter_form.selected_company.label_tag }}
+          {{ category_filter_form.selected_company }}
+        </div>
+
         <button type="submit" class="btn btn-primary">Search</button>
         <button type="button" class="btn btn-secondary" onclick="resetFilters()">Reset</button>
       </form>
@@ -251,6 +271,18 @@
     url.search = '';
     window.location.href = url;
   }
+
+  // Company name autocompletion
+  $( function() {
+    var availableTags = [
+        {% for value, label in companies %}
+            "{{label}}",
+        {% endfor %}
+    ];
+    $( "#companies" ).autocomplete({
+      source: availableTags
+    });
+  } );
 </script>
 
 {% endblock content %}

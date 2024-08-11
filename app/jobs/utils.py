@@ -1,5 +1,5 @@
 from typing import Tuple
-from jobs.models import JobPosting
+from jobs.models import JobPosting, Company
 from django.db.models import Q
 from django.contrib.postgres.aggregates import StringAgg
 from django.db.models import F
@@ -47,6 +47,7 @@ def category_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -
     english_level = form.cleaned_data.get("selected_english_level")
     experience_level = form.cleaned_data.get("selected_experience_level")
     salary = form.cleaned_data.get("salary")
+    selected_company = form.cleaned_data.get("selected_company")
 
     if category != "":
         jobs = jobs.filter(primary_keyword=category)
@@ -55,6 +56,8 @@ def category_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -
     jobs = experience_selection_handler(jobs, experience_level)
     if salary is not None:
         jobs = jobs.filter(salary_min__gte=salary)
+    if selected_company:
+        jobs = jobs.filter(company__name=selected_company)
 
     context = {
         "selected_category": category,
@@ -94,6 +97,19 @@ def get_runtime_locations():
         cities = entry['all_locations'].split(',')
         unique_cities.update([city.strip() for city in cities])
     return unique_cities
+
+
+def get_runtime_companies():
+    locations_combined = Company.objects.annotate(
+        all_companies=StringAgg(F('name'), delimiter='')
+    ).values('all_companies')
+
+    unique_companies = set()
+    for entry in locations_combined:
+        companies = entry['all_companies'].split()
+        unique_companies.update([company.strip() for company in companies])
+
+    return [(value, value) for value in unique_companies]
 
 
 def get_runtime_counties():
