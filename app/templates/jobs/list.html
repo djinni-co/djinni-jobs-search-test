@@ -2,63 +2,333 @@
 
 {% block content %}
 
-  <style>
-    .text-clamp {
-      display: -webkit-box;
-      -webkit-line-clamp: 5;
-      -webkit-box-orient: vertical;
-      line-height: 1.3rem;
-      height: calc(1.3rem * 5);
-      overflow: hidden;
-    }
+{% load static %}
 
-    .text-clamp * {
-      margin-bottom: 0;
-    }
-  </style>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.js"></script>
+<link href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/themes/ui-lightness/jquery-ui.css"
+      rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}">
+</head>
 
-  <div class="container">
-    <header class="pt-4 pb-4">
+<div class="container">
+  <header class="pt-4 pb-4">
+    <h1>Jobs on Djinni</h1>
+  </header>
 
-      <h1>Jobs on Djinni</h1>
-      <div class="mb-4">
-        <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </div>
+<div class="row">
+    <div class="col-md-4">
+      <form id="filter-form" method="GET">
+        <div class="mb-4">
+          {% if selected_category %}
+          <button class="badge bg-primary btn btn-link" onclick="resetFilter('selected_category')">{{ selected_category }}</button>
+          {% endif %}
+          {% if selected_remote_type %}
+            <button class="badge bg-primary btn btn-link" onclick="resetFilter('selected_remote_type')">{{ selected_remote_type }}</button>
+          {% endif %}
+          {% if selected_english_level %}
+            <button class="badge bg-primary btn btn-link" onclick="resetFilter('selected_english_level')">{{ selected_english_level }}</button>
+          {% endif %}
+          {% if selected_experience_level %}
+            <button class="badge bg-primary btn btn-link" onclick="resetFilter('selected_experience_level')">{{ selected_experience_level }}</button>
+          {% endif %}
+          {% if selected_order %}
+            <button class="badge bg-primary btn btn-link" onclick="resetFilter('selected_order')">{{ selected_order }}</button>
+          {% endif %}
+        </div>
+        <div class="form-group mb-3">
+          {{ form.q.label_tag }}
+          {{ form.q }}
+        </div>
+
+        <div class="form-group mb-3">
+          <label>Search Type</label><br>
+          <div class="form-check mb-2">
+            {{ form.search_position }}
+            {{ form.search_position.label_tag }}
           </div>
-        </form>
-      </div>
+          <div class="form-check mb-2">
+            {{ form.search_long_description }}
+            {{ form.search_long_description.label_tag }}
+          </div>
+        </div>
 
-    </header>
+        <div class="form-group mb-3">
+          {{ form.any_keywords.label_tag }}
+          {{ form.any_keywords }}
+        </div>
 
-    <div id="jobs_list">
-      <div class="row">
-        <div class="col-sm-8">
-
-          {% for job in jobs %}
-            <div id="job_{{job.id}}" class="mb-5">
-              <h2 class="h4 text-primary">
-                {{ job.position }}
-                {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
-                {% endif %}
-                <small class="text-secondary">at {{ job.company.name }}</small>
-              </h2>
-              <div>
-                <div class="text-clamp">
-                  {{ job.long_description|safe }}
-                </div>
-              </div>
+        <div class="form-group mb-3">
+          {{ form.exclude_keywords.label_tag }}
+          {{ form.exclude_keywords }}
+        </div>
+        <!-- Ordering selection -->
+        <div class="form-group mb-3">
+          <label>Order by</label>
+          <div class="category-buttons mb-3">
+          {% for value, label in order_selection_form.order_choices %}
+            <div class="checkbox-wrapper mb-1">
+                <input type="checkbox" id="order_{{ value }}" name="selected_order" value="{{ value }}"
+                       {% if value == selected_order %}checked{% endif %}
+                onclick="onlyOne(this)">
+                <label for="order_{{ value }}">{{ label }}</label>
             </div>
           {% endfor %}
-
+          </div>
         </div>
+        <button type="submit" class="btn btn-primary">Search</button>
+
+        <!-- Category selection -->
+        <div class="form-group mb-4">
+          <label>Category</label>
+          <div class="category-buttons mb-3">
+          {% for value, label in category_filter_form.category_choices %}
+            <div class="checkbox-wrapper mb-1">
+                <input type="checkbox" id="category_{{ value }}" name="selected_category" value="{{ value }}"
+                       {% if value == selected_category %}checked{% endif %}
+                onclick="onlyOne(this)">
+                <label for="category_{{ value }}">{{ label }}</label>
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+
+        <!-- Remote type selection -->
+        <div class="form-group mb-4">
+          <label>Remote type</label>
+          <div class="category-buttons mb-3">
+          {% for value, label in category_filter_form.remote_type_choices %}
+            <div class="checkbox-wrapper mb-1">
+                <input type="checkbox" id="remote_type_{{ value }}" name="selected_remote_type" value="{{ value }}"
+                       {% if value == selected_remote_type %}checked{% endif %}
+                onclick="onlyOne(this)">
+                <label for="remote_type_{{ value }}">{{ label }}</label>
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+
+        <!-- English level selection -->
+        <div class="form-group mb-4">
+          <label>English level</label>
+          <div class="category-buttons mb-3">
+          {% for value, label in category_filter_form.english_level_choices %}
+            <div class="checkbox-wrapper mb-1">
+                <input type="checkbox" id="english_level_{{ value }}" name="selected_english_level" value="{{ value }}"
+                       {% if value == selected_english_level %}checked{% endif %}
+                onclick="onlyOne(this)">
+                <label for="english_level_{{ value }}">{{ label }}</label>
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+
+        <!-- Experience level selection -->
+        <div class="form-group mb-4">
+          <label>Experience level</label>
+          <div class="category-buttons mb-3">
+          {% for value, label in category_filter_form.experience_level_choices %}
+            <div class="checkbox-wrapper mb-1">
+                <input type="checkbox" id="experience_level_{{ value }}" name="selected_experience_level" value="{{ value }}"
+                       {% if value == selected_experience_level %}checked{% endif %}
+                onclick="onlyOne(this)">
+                <label for="experience_level_{{ value }}">{{ label }}</label>
+            </div>
+          {% endfor %}
+          </div>
+        </div>
+        <!-- Salary range selection -->
+        <div class="form-group mb-4">
+          <label for="salary_range">Salary starting from:</label>
+          <div class="slider-container">
+            <input type="range" id="salary_range" name="salary" min="0" max="10000" step="500" value="{{ category_filter_form.salary.value|default:0 }}" oninput="updateSalaryValue(this.value)">
+            <span id="salary_value">{{ category_filter_form.salary.value|default:0 }}</span> USD
+          </div>
+        </div>
+
+        <!--Company selection-->
+        <div class="form-group mb-4">
+          {{ category_filter_form.selected_company.label_tag }}
+          {{ category_filter_form.selected_company }}
+        </div>
+        <!-- Country and location selection -->
+        <div class="form-group mb-4">
+          {{ category_filter_form.selected_country.label_tag }}
+          {{ category_filter_form.selected_country }}
+        </div>
+
+        <div class="form-group mb-4">
+          {{ category_filter_form.selected_location.label_tag }}
+          {{ category_filter_form.selected_location }}
+        </div>
+
+        <button type="submit" class="btn btn-primary">Search</button>
+        <button type="button" class="btn btn-secondary" onclick="resetFilters()">Reset</button>
+      </form>
+    </div>
+
+    <div class="col-md-8">
+      <header class="pt-4 pb-4">
+        <h1>
+            {{ selected_category }} {{ selected_remote_type }} {{ selected_english_level }} {{ selected_experience_level }}
+        </h1>
+      </header>
+      <div id="jobs_list">
+        {% for job in jobs %}
+          <div id="job_{{ job.id }}" class="mb-5">
+            <h2 class="h4 text-primary">
+              {{ job.position }}
+              {% if job.public_salary_max %}
+                <span class="text-success">to ${{ job.public_salary_max }}</span>
+              {% endif %}
+              <small class="text-secondary">at {{ job.company.name }}</small>
+            </h2>
+            <div>
+              <div class="text-clamp">
+                <h6 class="text-primary">
+                  <b class="text-secondary">primary keyword: {{ job.primary_keyword }}; </b>
+                  <b class="text-secondary">remote type: {{ job.remote_type }}; </b>
+                  <b class="text-secondary">experience_level: {{ job.experience_years }}; </b>
+                  <b class="text-secondary">applications: {{ job.applications_count }}; </b>
+                  <b class="text-secondary">published: {{ job.published }}; </b>
+                </h6>
+                {{ job.long_description|safe }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
       </div>
+
+      <!-- Pagination -->
+      {% if is_paginated %}
+        <nav aria-label="Page navigation">
+          <ul class="pagination justify-content-center">
+            {% if jobs.has_previous %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ jobs.previous_page_number }}&{{ querystring }}" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Previous">
+                  <span aria-hidden="true">&laquo;</span>
+                </a>
+              </li>
+            {% endif %}
+
+            {% for num in jobs.paginator.page_range %}
+              {% if jobs.number == num %}
+                <li class="page-item active">
+                  <a class="page-link" href="#">{{ num }}</a>
+                </li>
+              {% elif num > jobs.number|add:'-5' and num < jobs.number|add:'5' %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ num }}&{{ querystring }}">{{ num }}</a>
+                </li>
+              {% endif %}
+            {% endfor %}
+
+            {% if jobs.has_next %}
+              <li class="page-item">
+                <a class="page-link" href="?page={{ jobs.next_page_number }}&{{ querystring }}" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            {% else %}
+              <li class="page-item disabled">
+                <a class="page-link" href="#" aria-label="Next">
+                  <span aria-hidden="true">&raquo;</span>
+                </a>
+              </li>
+            {% endif %}
+          </ul>
+        </nav>
+      {% endif %}
     </div>
   </div>
+</div>
+
+<script>
+  // Select only one checkbox
+  function onlyOne(checkbox) {
+    var checkboxes = document.getElementsByName(checkbox.name)
+    checkboxes.forEach((item) => {
+        if (item !== checkbox) item.checked = false
+    })
+}
+
+  // Reset selected filters
+  function resetFilter(filterName) {
+    var checkboxes = document.getElementsByName(filterName);
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = false;
+    });
+    document.getElementById('filter-form').submit();
+  }
+
+  // Update salary label
+  function updateSalaryValue(value) {
+    document.getElementById('salary_value').textContent = value;
+  }
+
+  // Reset all filters
+  function resetFilters() {
+    var form = document.getElementById('filter-form');
+    form.reset();
+    var url = new URL(window.location.href);
+    url.search = '';
+    window.location.href = url;
+  }
+
+  // Company name autocompletion
+  $( function() {
+    var availableTags = [
+        {% for value, label in companies %}
+            "{{label}}",
+        {% endfor %}
+    ];
+    $( "#companies" ).autocomplete({
+      source: availableTags
+    });
+  } );
+
+  $(document).ready(function() {
+      var countries = [
+          {% for value, label in countries %}
+            "{{label}}",
+          {% endfor %}
+      ];
+      var cities = [
+          {% for value, label in locations %}
+            "{{label}}",
+          {% endfor %}
+      ];
+
+      $("#countries").autocomplete({
+        source: countries,
+        select: function(event, ui) {
+            var selectedCountry = ui.item.value;
+            handleCountrySelection(selectedCountry);
+        }
+      });
+
+      var currentCountry = $("#countries").val();
+      handleCountrySelection(currentCountry);
+
+       function handleCountrySelection(selectedCountry) {
+        if (selectedCountry === "Ukraine") {
+            $("#locations").prop('disabled', false);
+            $("#locations").autocomplete({
+                source: cities
+            });
+        } else {
+            $("#locations").val('');
+            $("#locations").prop('disabled', true);
+        }
+     }
+  });
+</script>
+
 {% endblock content %}

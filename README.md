@@ -87,14 +87,9 @@ web-1  | Django version 4.2.4, using settings 'djinnitest.settings'
 web-1  | Starting development server at http://0.0.0.0:8000/
 web-1  | Quit the server with CONTROL-C.
 ```
+But sometimes you need to reload with ``` docker compose up ``` again
 
-#### 4. Run migrations
-
-```
-docker compose exec web python3 app/manage.py migrate
-```
-
-#### 5. Import database  
+#### 4. Import database
 
 See active containers list:  
 
@@ -113,6 +108,16 @@ Replace `<CONTAINER ID>` with the id of the postgres container and run the comma
 
 ```
 cat dump.sql | docker exec -i <CONTAINER ID> psql --user admin djinni_sandbox
+```
+
+```
+docker compose exec web python3 app/manage.py migrate
+```
+
+#### 5. Run migrations
+
+```
+docker compose exec web python3 app/manage.py migrate
 ```
 
 Now open the http://0.0.0.0:8000 and you will see jobs list.
