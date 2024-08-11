@@ -197,6 +197,32 @@ class CompanyType(models.TextChoices):
     OTHER = ("other", "other")
 
 
+class Location(models.TextChoices):
+    """
+    Firstly I tried to get distinct locations on runtime
+    but since there are thousands job postings and location
+    is a string of cities so there may be as many distinct values
+    as job postings itself.
+    """
+    KYIV = 'Киев', _('Kyiv')
+    LVIV = 'Львов', _('Lviv')
+    KHARKIV = 'Харьков', _('Kharkiv')
+    DNIPRO = 'Днепр', _('Dnipro')
+    IVANO_FRANKIVSK = 'Ивано-Франковск', _('Ivano-Frankivsk')
+    VINNYTSIA = 'Винница', _('Vinnytsia')
+    ODESA = 'Одесса', _('Odesa')
+    KHMELNYTSKYI = 'Хмельницкий', _('Khmelnytskyi')
+    UZHHOROD = 'Ужгород', _('Uzhhorod')
+    ZAPORIZHZHIA = 'Запорожье', _('Zaporizhzhia')
+    CHERNIVTSI = 'Черновцы', _('Chernivtsi')
+    CHERKASY = 'Черкассы', _('Cherkasy')
+    MYKOLAIV = 'Николаев', _('Mykolaiv')
+    CHERNIHIV = 'Чернигов', _('Chernihiv')
+    ZHYTOMYR = 'Житомир', _('Zhytomyr')
+    TERNOPIL = 'Тернополь', _('Ternopil')
+
+
+
 class JobPosting(models.Model):
     class Status(models.TextChoices):
         """

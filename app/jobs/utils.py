@@ -81,11 +81,7 @@ def order_form_handler(jobs: QuerySet, form: forms.Form, context_arg: dict) -> T
     return jobs, context | context_arg
 
 
-def get_runtime_data():
-
-    return get_runtime_locations(), get_runtime_counties()
-
-
+# Not in use
 def get_runtime_locations():
     # get distinct locations and write them to all_locations
     locations_combined = JobPosting.objects.annotate(
