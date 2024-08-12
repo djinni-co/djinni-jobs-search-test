@@ -102,6 +102,15 @@ Replace `<CONTAINER ID>` with the id of the postgres container and run the comma
 cat dump.sql | docker exec -i <CONTAINER ID> psql --user admin djinni_sandbox
 ```
 
+For Windows:
+
+```
+docker compose cp <path to dump>dump.sql db:.
+```
+```
+docker compose exec -it db psql -U admin -d djinni_sandbox -f ./dump.sql
+```
+
 #### 5. Restart the container 
 
 ```
