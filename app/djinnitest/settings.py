@@ -30,16 +30,30 @@ ALLOWED_HOSTS = ['0.0.0.0']
 
 
 # Application definition
-
-INSTALLED_APPS = [
+# Стандартні додатки Django
+DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+]
+
+# Installed apps
+THIRD_PARTY_APPS = [
+    "django_filters",
+    "crispy_forms",
+    "crispy_bootstrap5",
+]
+
+LOCAL_APPS = [
     "jobs.apps.JobsConfig",
 ]
+
+
+INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -86,7 +100,13 @@ DATABASES = {
     }
 }
 
-
+# CACHE
+CACHES = {
+    'default': {
+        'BACKEND': "django.core.cache.backends.memcached.PyMemcacheCache",
+        'LOCATION': "cache:11211",  # The "cache" hostname matches the service name in your docker-compose.yml
+    }
+}
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -123,7 +143,15 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 
+STATICFILES_DIRS = [
+    BASE_DIR / "static",
+]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# CRISPY FORMS SETTINGS
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
