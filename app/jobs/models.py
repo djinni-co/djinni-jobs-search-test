@@ -14,6 +14,7 @@ class RemoteType(models.TextChoices):
     FULL_REMOTE = "full_remote", _("Full Remote")
     CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
 
+
 class RelocateType(models.TextChoices):
     NO_RELOCATE = "no_relocate", _("No relocation")
     CANDIDATE_PAID = "candidate_paid", _("Covered by candidate")
@@ -71,13 +72,6 @@ class RemoteType(models.TextChoices):
         PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
         FULL_REMOTE = "full_remote", _("Full Remote")
         CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
-
-class CompanyType(models.TextChoices):
-    AGENCY = ("agency/freelance", "agency/freelance")
-    PRODUCT = ("product", "product")
-    OUTSOURCE = ("outsource/outstaff", "outsource/outstaff")
-    OTHER = ("other", "other")
-
 
 class JobPosting(models.Model):
     class Status(models.TextChoices):

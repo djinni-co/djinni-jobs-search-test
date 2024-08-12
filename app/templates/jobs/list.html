@@ -1,64 +1,236 @@
 {% extends "base.html" %}
-
+{% load static %}
 {% block content %}
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  .text-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    line-height: 1.3rem;
+    height: calc(1.3rem * 5);
+    overflow: hidden;
+  }
 
-  <style>
-    .text-clamp {
-      display: -webkit-box;
-      -webkit-line-clamp: 5;
-      -webkit-box-orient: vertical;
-      line-height: 1.3rem;
-      height: calc(1.3rem * 5);
-      overflow: hidden;
-    }
+  .text-clamp * {
+    margin-bottom: 0;
+  }
+</style>
+<div class="container">
+  <header class="pt-4 pb-4">
+    <h1>Jobs on Djinni</h1>
+  </header>
 
-    .text-clamp * {
-      margin-bottom: 0;
-    }
-  </style>
-
-  <div class="container">
-    <header class="pt-4 pb-4">
-
-      <h1>Jobs on Djinni</h1>
-      <div class="mb-4">
-        <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </div>
-          </div>
-        </form>
+  <form method="get">
+    <div class="row mb-3">
+      <div class="col-md-10">
+        <input type="text" name="query" class="form-control"
+          placeholder="Search jobs, enter stopwords using minus (e.g. Python AQA -Java eliminates java jobs from list)"
+          value="{{ request.GET.query }}">
       </div>
 
-    </header>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
+    </div>
 
-    <div id="jobs_list">
-      <div class="row">
-        <div class="col-sm-8">
 
-          {% for job in jobs %}
-            <div id="job_{{job.id}}" class="mb-5">
-              <h2 class="h4 text-primary">
-                {{ job.position }}
-                {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
-                {% endif %}
-                <small class="text-secondary">at {{ job.company.name }}</small>
-              </h2>
-              <div>
-                <div class="text-clamp">
-                  {{ job.long_description|safe }}
-                </div>
-              </div>
-            </div>
+
+    <!-- Years of Experience Slider and its value display -->
+    <div class="row mb-3 form-inline-custom">
+      <label for="experience_years">Experience:</label>
+      <div class="col-md-7">
+        <input type="range" name="experience_years" id="experience_years" min="0" max="10" step="1"
+          value="{{ request.GET.experience_years }}" class="form-control-range">
+      </div>
+      <div class="col-md-1">
+        <input type="text" id="years-display" class="form-control" value="{{ request.GET.experience_years }}" readonly>
+      </div>
+      <div class="col-md-1">years</div>
+    </div>
+
+    <!-- Min Salary | Max Salary with Dash -->
+    <div class="row mb-3 form-inline-custom">
+      <div class="col-md-1">
+        <input type="number" name="min_salary" id="min_salary" class="form-control" placeholder="Min salary"
+          value="{{ request.GET.min_salary }}">
+      </div>
+      <div class="col-auto">
+        <span>-</span>
+      </div>
+      <div class="col-md-1">
+        <input type="number" name="max_salary" id="max_salary" class="form-control" placeholder="Max salary"
+          value="{{ request.GET.max_salary }}">
+      </div>
+    </div>
+
+    <!-- Company Type | English Level -->
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <select name="company_type" id="company_type" class="form-control">
+          <option value="">Company Type</option>
+          <!-- Populate options dynamically -->
+          {% for key, value in company_types %}
+          <option value="{{ key }}" {% if request.GET.company_type == key %}selected{% endif %}>
+            {{ value }}
+          </option>
           {% endfor %}
+        </select>
+      </div>
+      <div class="col-md-3">
+        <select name="english_level" id="english_level" class="form-control">
+          <option value="">English Level</option>
+          <!-- Populate options dynamically -->
+          {% for key, value in english_levels %}
+          <option value="{{ key }}" {% if request.GET.english_level == key %}selected{% endif %}>
+            {{ value }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
 
+    <!-- Remote Type | Sort By -->
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <select name="remote_type" id="remote_type" class="form-control">
+          <option value="">Remote Type</option>
+          <!-- Populate options dynamically -->
+          {% for key, value in remote_types %}
+          <option value="{{ key }}" {% if request.GET.remote_type == key %}selected{% endif %}>
+            {{ value }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="col-md-3">
+        <select name="sort_by" id="sort_by" class="form-control">
+          <option value="date_desc" {% if request.GET.sort_by == 'date_desc' %}selected{% endif %}>Sort By</option>
+          <option value="date_asc" {% if request.GET.sort_by == 'date_asc' %}selected{% endif %}>Publication Date (Oldest
+            First)</option>
+          <option value="reviews_desc" {% if request.GET.sort_by == 'reviews_desc' %}selected{% endif %}>Reviews Count
+            (Highest First)</option>
+          <option value="reviews_asc" {% if request.GET.sort_by == 'reviews_asc' %}selected{% endif %}>Reviews Count
+            (Lowest First)</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Domain -->
+    <div class="row mb-3">
+      <div class="col-md-3">
+        <select name="domain" id="domain" class="form-control">
+          <option value="">Domain</option>
+          <!-- Populate options dynamically -->
+          {% for key, value in job_domains %}
+          <option value="{{ key }}" {% if request.GET.domain == key %}selected{% endif %}>
+            {{ value }}
+          </option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+
+
+
+
+  </form>
+
+  <div id="jobs_list">
+    <div class="row">
+      <div class="col-sm-8">
+
+        {% for job in jobs %}
+        <div id="job_{{job.id}}" class="mb-5">
+          <h2 class="h4 text-primary">
+            {{ job.position }}
+            {% if job.public_salary_max %}
+            <span class="text-success">to ${{job.public_salary_max}}</span>
+            {% endif %}
+            <small class="text-secondary">at {{ job.company.name }}</small>
+          </h2>
+          <div>
+            <div class="text-clamp">
+              {{ job.long_description|safe }}
+            </div>
+          </div>
         </div>
+        {% endfor %}
+
       </div>
     </div>
   </div>
+</div>
+
+<nav aria-label="Page navigation example" class="mt-4">
+  <ul class="pagination">
+    {% if jobs.has_previous %}
+    <li class="page-item">
+      <a class="page-link" href="?page=1{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}"
+        aria-label="First">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    <li class="page-item">
+      <a class="page-link"
+        href="?page={{ jobs.previous_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}"
+        aria-label="Previous">
+        <span aria-hidden="true">&lsaquo;</span>
+      </a>
+    </li>
+    {% else %}
+    <li class="page-item disabled">
+      <span class="page-link" aria-hidden="true">&laquo;</span>
+    </li>
+    <li class="page-item disabled">
+      <span class="page-link" aria-hidden="true">&lsaquo;</span>
+    </li>
+    {% endif %}
+
+    {% for i in jobs.paginator.page_range %}
+    {% if jobs.number == i %}
+    <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+    {% elif i > jobs.number|add:'-3' and i < jobs.number|add:'3' %} <li class="page-item"><a class="page-link"
+        href="?page={{ i }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}">{{ i }}</a></li>
+      {% endif %}
+      {% endfor %}
+
+      {% if jobs.has_next %}
+      <li class="page-item">
+        <a class="page-link"
+          href="?page={{ jobs.next_page_number }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}"
+          aria-label="Next">
+          <span aria-hidden="true">&rsaquo;</span>
+        </a>
+      </li>
+      <li class="page-item">
+        <a class="page-link"
+          href="?page={{ jobs.paginator.num_pages }}{% if request.GET.query %}&query={{ request.GET.query }}{% endif %}"
+          aria-label="Last">
+          <span aria-hidden="true">&raquo;</span>
+        </a>
+      </li>
+      {% else %}
+      <li class="page-item disabled">
+        <span class="page-link" aria-hidden="true">&rsaquo;</span>
+      </li>
+      <li class="page-item disabled">
+        <span class="page-link" aria-hidden="true">&raquo;</span>
+      </li>
+      {% endif %}
+  </ul>
+</nav>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script>
+  // JavaScript to update the years of experience display
+  document.getElementById('experience_years').addEventListener('input', function () {
+    document.getElementById('years-display').value = this.value;
+  });
+</script>
 {% endblock content %}
