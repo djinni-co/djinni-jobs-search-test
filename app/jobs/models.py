@@ -1,12 +1,20 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+
 class Experience(models.TextChoices):
-        ZERO = "no_exp", _("No experience")
-        ONE = "1y", _("1 year")
-        TWO = "2y", _("2 years")
-        THREE = "3y", _("3 years")
-        FIVE = "5y", _("5 years")
+    ZERO = "0", _("No experience")
+    ONE = "1", _("1 year")
+    TWO = "2", _("2 years")
+    THREE = "3", _("3 years")
+    FOUR = "4", _("4 years")
+    FIVE = "5", _("5 years")
+    SIX = "6", _("6 years")
+    SEVEN = "7", _("7 years")
+    EIGHT = "8", _("8 years")
+    NINE = "9", _("9 years")
+    TEN = "10", _("10 years")
+
 
 class RemoteType(models.TextChoices):
     OFFICE = "office", _("Office Work")
@@ -14,18 +22,21 @@ class RemoteType(models.TextChoices):
     FULL_REMOTE = "full_remote", _("Full Remote")
     CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
 
+
 class RelocateType(models.TextChoices):
     NO_RELOCATE = "no_relocate", _("No relocation")
     CANDIDATE_PAID = "candidate_paid", _("Covered by candidate")
     COMPANY_PAID = "company_paid", _("Covered by company")
 
+
 class AcceptRegion(models.TextChoices):
     OFFICE_LOCATIONS = "office_locations", _("Office locations")
-    WORLDWIDE = "", _("Worldwide")
+    WORLDWIDE = "worldwide", _("Worldwide")
     UKRAINE = "ukraine", _("Only Ukraine")
     EUROPE_ONLY = "europe_only", _("Only Europe")
     EUROPE = "europe", _("Ukraine + Europe")
     CUSTOM_SELECTION = "custom_selection", _("Custom selection")
+
 
 class EnglishLevel(models.TextChoices):
     NONE = ("no_english", "No English")
@@ -34,6 +45,7 @@ class EnglishLevel(models.TextChoices):
     INTERMEDIATE = ("intermediate", "Intermediate")
     UPPER = ("upper", "Upper-Intermediate")
     FLUENT = ("fluent", "Advanced/Fluent")
+
 
 class JobDomain(models.TextChoices):
     ADULT = "adult", "Adult"
@@ -59,6 +71,7 @@ class JobDomain(models.TextChoices):
     TRAVEL = "travel", "Travel / Tourism"
     OTHER = "other", "Other"
 
+
 class CompanyType(models.TextChoices):
     AGENCY = "agency", _("Agency")
     OUTSOURCE = "outsource", _("Outsource")
@@ -66,17 +79,34 @@ class CompanyType(models.TextChoices):
     PRODUCT = "product", _("Product")
     STARTUP = "startup", _("Startup")
 
-class RemoteType(models.TextChoices):
-        OFFICE = "office", _("Office Work")
-        PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
-        FULL_REMOTE = "full_remote", _("Full Remote")
-        CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
 
-class CompanyType(models.TextChoices):
-    AGENCY = ("agency/freelance", "agency/freelance")
-    PRODUCT = ("product", "product")
-    OUTSOURCE = ("outsource/outstaff", "outsource/outstaff")
-    OTHER = ("other", "other")
+class Country(models.TextChoices):
+    UKRAINE = "UKR", _("Ukraine")
+    POLAND = "POL", _("Poland")
+    PORTUGAL = "PRT", _("Portugal")
+    CYPRUS = "CYP", _("Cyprus")
+    USA = "USA", _("USA")
+    ARMENIA = "ARM", _("Armenia")
+    BULGARIA = "BGR", _("Bulgaria")
+    ROMANIA = "ROU", _("Romania")
+    GEORGIA = "GEO", _("Georgia")
+    GERMANY = "DEU", _("Germany")
+    OTHER = "OTH", _("Other")
+
+
+# Duplicate of an existing 'RemoteType class'
+# class RemoteType(models.TextChoices):
+#         OFFICE = "office", _("Office Work")
+#         PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
+#         FULL_REMOTE = "full_remote", _("Full Remote")
+#         CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
+
+# Duplicate of an existing 'CompanyType class'
+# class CompanyType(models.TextChoices):
+#     AGENCY = ("agency/freelance", "agency/freelance")
+#     PRODUCT = ("product", "product")
+#     OUTSOURCE = ("outsource/outstaff", "outsource/outstaff")
+#     OTHER = ("other", "other")
 
 
 class JobPosting(models.Model):
@@ -151,12 +181,21 @@ class JobPosting(models.Model):
 
     # Counts
     unread_count = models.IntegerField(blank=False, default=0)
-    search_count = models.IntegerField(blank=False, default=0)  # unused, how many candidates for this job
+    search_count = models.IntegerField(
+        blank=False,
+        default=0
+    )  # unused, how many candidates for this job
     views_count = models.IntegerField(blank=False, default=0)
     applications_count = models.IntegerField(blank=False, default=0)
     sent_count = models.IntegerField(blank=False, default=0)
 
-    recruiter = models.ForeignKey('Recruiter', on_delete=models.CASCADE, blank=True, null=True, db_index=True)
+    recruiter = models.ForeignKey(
+        'Recruiter',
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+        db_index=True
+    )
     company = models.ForeignKey(
         "Company", models.SET_NULL, blank=True, null=True, db_index=True
     )
@@ -179,6 +218,7 @@ class Recruiter(models.Model):
     name = models.CharField(max_length=250, blank=False, default="")
     company_id = models.IntegerField(blank=True, null=True)
     slug = models.SlugField()
+
 
 class Company(models.Model):
     name = models.CharField(max_length=250, blank=False, default="")

@@ -1,0 +1,152 @@
+{% load custom_filters %}
+
+<style>
+  .filter-container {
+    display: flex;
+    justify-content: space-around;
+  }
+</style>
+
+<form method="GET" onchange="handlerButton()">
+  <div class="row">
+    <div class="col-sm-12">
+      <input type="search" name="basic_keywords"
+             value="{{ request.GET.basic_keywords }}" class="form-control"
+             placeholder="Search jobs"
+             id="searchField">
+    </div>
+  </div>
+  <div class="filter-container">
+    <div>
+      <div class="mt-1">
+        <b>English:</b>
+        {% for choice in english_level_choices %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="{{ choice.0 }}"
+                 id="englishLevel_{{forloop.counter0}}"
+                 name="english_level" {% if choice.0 in request.GET|get_request_list:"english_level" %} checked {% endif %}>
+          <label class="form-check-label" for="englishLevel_{{forloop.counter0}}">
+            {{ choice.1 }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="mt-1">
+        <b>Remote:</b>
+        {% for choice in remote_type_choices %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="{{ choice.0 }}"
+                 id="remoteType_{{forloop.counter0}}"
+                 name="remote_type" {% if choice.0 in request.GET|get_request_list:"remote_type" %} checked {% endif %}>
+          <label class="form-check-label" for="remoteType_{{forloop.counter0}}">
+            {{ choice.1 }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="mt-1">
+        <b>Experience:</b>
+        {% for choice in experience_choices %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="{{ choice.0 }}"
+                 id="experience_{{forloop.counter0}}"
+                 name="experience" {% if choice.0 in request.GET|get_request_list:"experience" %} checked {% endif %}>
+          <label class="form-check-label" for="experience_{{forloop.counter0}}">
+            {{ choice.1 }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div>
+      <div class="mt-1">
+        <b>Region:</b>
+        {% for choice in region_choices %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="{{ choice.0 }}"
+                 id="region_{{forloop.counter0}}"
+                 name="region" {% if choice.0 in request.GET|get_request_list:"region" %} checked {% endif %}>
+          <label class="form-check-label" for="region_{{forloop.counter0}}">
+            {{ choice.1 }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="mt-1">
+        <b>Company type:</b>
+        {% for choice in company_type_choices %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" value="{{ choice.0 }}"
+                 id="company_type_{{forloop.counter0}}"
+                 name="company_type" {% if choice.0 in request.GET|get_request_list:"company_type" %} checked {% endif %}>
+          <label class="form-check-label" for="company_type_{{forloop.counter0}}">
+            {{ choice.1 }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+      <div class="mt-1">
+        <b>Country:</b>
+        {% for choice in country_choices %}
+        <div class="form-check">
+          <input class="form-check-input" type="radio" value="{{ choice.0 }}"
+                 id="country_{{forloop.counter0}}"
+                 name="country" {% if request.GET.country == choice.0 %} checked {% endif %}>
+          <label class="form-check-label" for="country_{{forloop.counter0}}">
+            {{ choice.1 }}
+          </label>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-1">
+    <b>Other filters:</b>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="1"
+             id="isPartTime"
+             name="is_part_time" {% if request.GET.is_part_time %} checked {% endif %}>
+      <label class="form-check-label" for="isPartTime">
+        Part time
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="1"
+             id="isUkraineOnly"
+             name="is_ukraine_only" {% if request.GET.is_ukraine_only %} checked {% endif %}>
+      <label class="form-check-label" for="isUkraineOnly">
+        Ukrainian product
+      </label>
+    </div>
+    <div class="form-check">
+      <input class="form-check-input" type="checkbox" value="1"
+             id="isMobReservation"
+             name="is_mob_reservation" {% if request.GET.is_mob_reservation %} checked {% endif %}>
+      <label class="form-check-label" for="isMobReservation">
+        Mobilization reservation
+      </label>
+    </div>
+  </div>
+  <div class="mt-1">
+    <b>Salary:</b>
+    <div class="row">
+      <div class="col-sm-3">
+        <label for="salaryFrom">from $</label>
+        <input class="col-sm-12" type="text" value="{{ request.GET.salary_from }}"
+               name="salary_from" id="salaryFrom">
+      </div>
+      <div class="col-sm-3">
+        <label for="salaryTo">to $</label>
+        <input class="col-sm-12" type="text" value="{{ request.GET.salary_to }}"
+               name="salary_to" id="salaryTo">
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-auto mt-2">
+      <button id="submitButton" type="submit" class="btn btn-primary" disabled>Search</button>
+    </div>
+  </div>
+</form>

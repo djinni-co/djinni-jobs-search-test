@@ -15,37 +15,43 @@
     .text-clamp * {
       margin-bottom: 0;
     }
+
+    .center {
+      text-align: center;
+    }
+
+    .nav-container {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-evenly;
+    }
+
+    a {
+      text-decoration: none;
+      color: white;
+    }
   </style>
 
   <div class="container">
     <header class="pt-4 pb-4">
-
       <h1>Jobs on Djinni</h1>
-      <div class="mb-4">
-        <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </div>
-          </div>
-        </form>
-      </div>
-
     </header>
 
     <div id="jobs_list">
       <div class="row">
         <div class="col-sm-8">
+          {% if request.GET.basic_keywords %}
+            <h2 class="text-secondary">
+              Vacancies with '{{ request.GET.basic_keywords }}' search
+            </h2>
+          {% endif %}
 
           {% for job in jobs %}
             <div id="job_{{job.id}}" class="mb-5">
               <h2 class="h4 text-primary">
                 {{ job.position }}
                 {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
+                  <span class="text-success">to $ {{job.public_salary_max}}</span>
                 {% endif %}
                 <small class="text-secondary">at {{ job.company.name }}</small>
               </h2>
@@ -55,10 +61,56 @@
                 </div>
               </div>
             </div>
+          {% empty %}
+            <h2 class="h4 text-primary">
+              Unfortunately, no vacancies were found matching your filter.
+            </h2>
           {% endfor %}
 
         </div>
+        <div class="col-sm-4">
+          <div class="mb-4">
+            {% include 'jobs/form.html' %}
+          </div>
+        </div>
+      </div>
+      <!-- Pagination -->
+      <nav aria-label="Page navigation">
+        <div class="nav-container">
+          {% if jobs.has_previous %}
+            <a href="{{ query_params }}&page={{ jobs.previous_page_number }}">
+              <button type="button" class="btn btn-secondary">
+                << Previous {{ jobs.previous_page_number }}
+              </button>
+            </a>
+          {% endif %}
+
+          {% if jobs.has_next %}
+            <a href="{{ query_params }}&page={{ jobs.next_page_number }}">
+              <button type="button" class="btn btn-secondary">
+                {{ jobs.next_page_number }} Next >>
+              </button>
+            </a>
+          {% endif %}
+        </div>
+      </nav>
+      <div class="center">
+        Total pages: {{ total_num_pages }}
       </div>
     </div>
   </div>
+
+  <script>
+    function handlerButton() {
+      let button = document.getElementById('submitButton')
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]:checked');
+      const radioButtons = document.querySelectorAll('input[type="radio"]:checked');
+      const searchField = document.getElementById('searchField')
+      const salaryFrom = document.getElementById('salaryFrom')
+      const salaryTo = document.getElementById('salaryTo')
+
+
+      button.disabled = !(checkboxes.length !== 0 || searchField.value !== '' || salaryFrom.value !== '' || salaryTo.value !== '' || radioButtons);
+    }
+  </script>
 {% endblock content %}
