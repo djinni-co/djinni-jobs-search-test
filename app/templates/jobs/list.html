@@ -2,63 +2,137 @@
 
 {% block content %}
 
-  <style>
-    .text-clamp {
-      display: -webkit-box;
-      -webkit-line-clamp: 5;
-      -webkit-box-orient: vertical;
-      line-height: 1.3rem;
-      height: calc(1.3rem * 5);
-      overflow: hidden;
-    }
+    <style>
+        .text-clamp {
+            display: -webkit-box;
+            -webkit-line-clamp: 5;
+            -webkit-box-orient: vertical;
+            line-height: 1.3rem;
+            height: calc(1.3rem * 5);
+            overflow: hidden;
+        }
 
-    .text-clamp * {
-      margin-bottom: 0;
-    }
-  </style>
+        .text-clamp * {
+            margin-bottom: 0;
+        }
+        .job-search {
+            margin-bottom: 4%;
+            margin-top: auto;
+        }
+    </style>
 
-  <div class="container">
-    <header class="pt-4 pb-4">
+    <div class="container">
+        <header class="pt-4 pb-4">
+            <h1>Jobs on Djinni</h1>
+        </header>
 
-      <h1>Jobs on Djinni</h1>
-      <div class="mb-4">
-        <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </div>
-          </div>
-        </form>
-      </div>
+        <div id="jobs_list">
+            <div class="row">
+                <div class="col-sm-8">
 
-    </header>
+                    {% for job in object_list %}
+                        <div id="job_{{ job.id }}" class="mb-5">
+                            <h2 class="h4 text-primary">
+                                {{ job.position }}
+                                {% if job.public_salary_max %}
+                                    <span class="text-success">to ${{ job.public_salary_max }}</span>
+                                {% endif %}
+                                <small class="text-secondary">at {{ job.company.name }}</small>
+                            </h2>
+                            <div>
+                                <div class="text-clamp">
+                                    {{ job.long_description|safe }}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
 
-    <div id="jobs_list">
-      <div class="row">
-        <div class="col-sm-8">
-
-          {% for job in jobs %}
-            <div id="job_{{job.id}}" class="mb-5">
-              <h2 class="h4 text-primary">
-                {{ job.position }}
-                {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
-                {% endif %}
-                <small class="text-secondary">at {{ job.company.name }}</small>
-              </h2>
-              <div>
-                <div class="text-clamp">
-                  {{ job.long_description|safe }}
                 </div>
-              </div>
-            </div>
-          {% endfor %}
+                <div class="col-lg-4">
+                    <div class="container">
 
+                        <form method="get">
+                             <input type="search" name="search" value="{{ request.GET.search }}" class="form-control job-search"
+                                   placeholder="Search jobs">
+                            <div class="job-search">
+                                <label for="salary_range" class="form-label text-muted">Salary from $</label>
+                                <output for="salary_range" class="text-emphasis text-muted">{{ request.GET.salary }}</output>
+                                <input type="range" class="form-range" id="salary_range" min="0" max="10000"
+                                       oninput="this.previousElementSibling.value = this.value"
+                                       step="500" name="salary" value="{{ request.GET.salary }}">
+                            </div>
+                            <div class="job-search">
+                                <label class="text-muted">Remote type:</label>
+                                <p>{{ filter.form.remote_type }}</p>
+                            </div>
+                            <div class="job-search">
+                                <label class="text-muted">English level::</label>
+                                <p>{{ filter.form.english_level }}</p>
+                            </div>
+                            <div class="job-search">
+                                <input type="search" name="country" value="{{ request.GET.country }}" class="form-control"
+                                   placeholder="Look for country">
+                            </div>
+                            <button class="btn btn-primary" type="submit">Search</button>
+                            <a href="{{ request.path }}" class="btn btn-secondary">Reset filters</a>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
+
+        <div class="pagination">
+    <span class="step-links">
+        {% if page_obj.has_previous %}
+            <button class="btn btn-secondary btn-sm" onclick="navigateUrl('{{ request.get_full_path }}', 1)">&laquo; first</button>
+            <button class="btn btn-secondary btn-sm"
+                    onclick="navigateUrl('{{ request.get_full_path }}', {{ page_obj.previous_page_number }})">previous</button>
+        {% endif %}
+
+        <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+        </span>
+
+        {% if page_obj.has_next %}
+            <button class="btn btn-secondary btn-sm"
+                    onclick="navigateUrl('{{ request.get_full_path }}', {{ page_obj.next_page_number }})">next</button>
+            <button class="btn btn-secondary btn-sm"
+                    onclick="navigateUrl('{{ request.get_full_path }}', {{ page_obj.paginator.num_pages }})">last &raquo;</button>
+        {% endif %}
+    </span>
+        </div>
+
     </div>
-  </div>
+
+    <script type="text/javascript">
+
+        function arrangePageQuery(urlPath, pageToNavigate) {
+            if (window.location.href.includes("?")) {
+                // there's filter queries in url:
+                window.location.href = urlPath + "&page=" + pageToNavigate;
+            } else {
+                // there's no filter queries:
+                window.location.href = urlPath + "?page=" + pageToNavigate;
+            }
+        }
+
+        function navigateUrl(fullPath, pageToNavigate) {
+
+            if (window.location.href.includes("?page=")) {
+                // to avoid appending when there is no filter queries, remove page query:
+                let baseFullPath = window.location.href.split("?page=")[0]
+                window.location.href = baseFullPath + "?page=" + pageToNavigate;
+                return
+            }
+
+            if (window.location.href.includes("&page=")) {
+                // to avoid appending when there is filter queries, remove page query
+                let baseFullPath = window.location.href.split("&page=")[0]
+                arrangePageQuery(baseFullPath, pageToNavigate);
+            } else {
+                arrangePageQuery(fullPath, pageToNavigate)
+            }
+        }
+    </script>
 {% endblock content %}
