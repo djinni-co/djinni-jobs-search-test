@@ -198,3 +198,16 @@ class Company(models.Model):
     )
     logo_url = models.CharField(max_length=255, blank=True, null=True, default="")
     created = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    def __str__(self):
+        return self.name
+
+
+def get_primary_keywords_to_choices():
+    """
+    Returns a set of keywords for filters.
+    """
+    keywords = JobPosting.objects.values_list('primary_keyword', flat=True).distinct().order_by('primary_keyword')
+
+    return [(item, item) for item in keywords]
+
