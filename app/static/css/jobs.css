@@ -1,0 +1,45 @@
+.text-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    line-height: 1.3rem;
+    height: calc(1.3rem * 5);
+    overflow: hidden;
+    position: relative;
+}
+
+.expandable {
+    position: relative;
+}
+
+.expandable.open .text-clamp {
+    -webkit-line-clamp: unset;
+    height: auto;
+    overflow: visible;
+}
+
+.read-more {
+    display: block;
+    text-align: right;
+    cursor: pointer;
+    color: blue;
+    background: white;
+    padding: 0 5px;
+    text-decoration: underline;
+    margin-top: 5px;
+}
+
+.range-value {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
+.filter-section {
+    margin-bottom: 1rem;
+}
+
+.highlight {
+    background-color: yellow;
+    font-weight: bold;
+}

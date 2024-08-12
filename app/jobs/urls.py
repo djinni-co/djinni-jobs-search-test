@@ -1,8 +1,6 @@
 from django.urls import path
-
-from jobs import views
-
+from .views import jobs_list
 
 urlpatterns = [
-    path("", views.jobs_list, name="jobs_list"),
+    path('jobs/', jobs_list, name='jobs_list'),
 ]

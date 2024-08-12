@@ -3,6 +3,7 @@ click==8.1.7
 colorama==0.4.6
 cssbeautifier==1.14.9
 Django==4.2.4
+django-filter==24.3
 djlint==1.32.1
 EditorConfig==0.12.3
 html-tag-names==0.1.2

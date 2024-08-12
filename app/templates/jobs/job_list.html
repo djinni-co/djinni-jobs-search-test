@@ -1,0 +1,32 @@
+{% load custom_filters %}
+<div id="jobs_list">
+    <div class="row">
+        <div class="col-sm-8">
+            {% for job in jobs %}
+            <div id="job_{{ job.id }}" class="mb-5">
+                <h2 class="h4 text-primary">
+                    {% if request.GET.search %}
+                    {{ job.position|highlight:request.GET.search|safe }}
+                    {% else %}
+                    {{ job.position }}
+                    {% endif %}
+                    {% if job.public_salary_max %}
+                    <span class="text-success">to ${{ job.public_salary_max }}</span>
+                    {% endif %}
+                    <small class="text-secondary">at {{ job.company.name }}</small>
+                </h2>
+                <div class="expandable">
+                    <div class="text-clamp" id="description-{{ job.id }}">
+                        {% if request.GET.search %}
+                        {{ job.long_description|highlight:request.GET.search|safe }}
+                        {% else %}
+                        {{ job.long_description|safe }}
+                        {% endif %}
+                    </div>
+                    <span class="read-more" onclick="toggleExpand('description-{{ job.id }}')">Read More</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
