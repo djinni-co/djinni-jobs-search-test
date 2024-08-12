@@ -1,23 +1,20 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
-class Experience(models.TextChoices):
-        ZERO = "no_exp", _("No experience")
-        ONE = "1y", _("1 year")
-        TWO = "2y", _("2 years")
-        THREE = "3y", _("3 years")
-        FIVE = "5y", _("5 years")
 
-class RemoteType(models.TextChoices):
-    OFFICE = "office", _("Office Work")
-    PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
-    FULL_REMOTE = "full_remote", _("Full Remote")
-    CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
+class Experience(models.TextChoices):
+    ZERO = "no_exp", _("No experience")
+    ONE = "1y", _("1 year")
+    TWO = "2y", _("2 years")
+    THREE = "3y", _("3 years")
+    FIVE = "5y", _("5 years")
+
 
 class RelocateType(models.TextChoices):
     NO_RELOCATE = "no_relocate", _("No relocation")
     CANDIDATE_PAID = "candidate_paid", _("Covered by candidate")
     COMPANY_PAID = "company_paid", _("Covered by company")
+
 
 class AcceptRegion(models.TextChoices):
     OFFICE_LOCATIONS = "office_locations", _("Office locations")
@@ -27,6 +24,7 @@ class AcceptRegion(models.TextChoices):
     EUROPE = "europe", _("Ukraine + Europe")
     CUSTOM_SELECTION = "custom_selection", _("Custom selection")
 
+
 class EnglishLevel(models.TextChoices):
     NONE = ("no_english", "No English")
     BASIC = ("basic", "Beginner/Elementary")
@@ -34,6 +32,7 @@ class EnglishLevel(models.TextChoices):
     INTERMEDIATE = ("intermediate", "Intermediate")
     UPPER = ("upper", "Upper-Intermediate")
     FLUENT = ("fluent", "Advanced/Fluent")
+
 
 class JobDomain(models.TextChoices):
     ADULT = "adult", "Adult"
@@ -59,18 +58,13 @@ class JobDomain(models.TextChoices):
     TRAVEL = "travel", "Travel / Tourism"
     OTHER = "other", "Other"
 
-class CompanyType(models.TextChoices):
-    AGENCY = "agency", _("Agency")
-    OUTSOURCE = "outsource", _("Outsource")
-    OUTSTAFF = "outstaff", _("Outstaff")
-    PRODUCT = "product", _("Product")
-    STARTUP = "startup", _("Startup")
 
 class RemoteType(models.TextChoices):
-        OFFICE = "office", _("Office Work")
-        PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
-        FULL_REMOTE = "full_remote", _("Full Remote")
-        CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
+    OFFICE = "office", _("Office Work")
+    PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
+    FULL_REMOTE = "full_remote", _("Full Remote")
+    CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
+
 
 class CompanyType(models.TextChoices):
     AGENCY = ("agency/freelance", "agency/freelance")
@@ -179,6 +173,7 @@ class Recruiter(models.Model):
     name = models.CharField(max_length=250, blank=False, default="")
     company_id = models.IntegerField(blank=True, null=True)
     slug = models.SlugField()
+
 
 class Company(models.Model):
     name = models.CharField(max_length=250, blank=False, default="")
