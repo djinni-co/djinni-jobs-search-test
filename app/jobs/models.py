@@ -1,5 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django.contrib.postgres.indexes import GinIndex
+from django.contrib.postgres.search import SearchVector, SearchVectorField
+
 
 class Experience(models.TextChoices):
         ZERO = "no_exp", _("No experience")
@@ -8,16 +11,19 @@ class Experience(models.TextChoices):
         THREE = "3y", _("3 years")
         FIVE = "5y", _("5 years")
 
+
 class RemoteType(models.TextChoices):
     OFFICE = "office", _("Office Work")
     PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
     FULL_REMOTE = "full_remote", _("Full Remote")
     CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
 
+
 class RelocateType(models.TextChoices):
     NO_RELOCATE = "no_relocate", _("No relocation")
     CANDIDATE_PAID = "candidate_paid", _("Covered by candidate")
     COMPANY_PAID = "company_paid", _("Covered by company")
+
 
 class AcceptRegion(models.TextChoices):
     OFFICE_LOCATIONS = "office_locations", _("Office locations")
@@ -27,6 +33,7 @@ class AcceptRegion(models.TextChoices):
     EUROPE = "europe", _("Ukraine + Europe")
     CUSTOM_SELECTION = "custom_selection", _("Custom selection")
 
+
 class EnglishLevel(models.TextChoices):
     NONE = ("no_english", "No English")
     BASIC = ("basic", "Beginner/Elementary")
@@ -34,6 +41,7 @@ class EnglishLevel(models.TextChoices):
     INTERMEDIATE = ("intermediate", "Intermediate")
     UPPER = ("upper", "Upper-Intermediate")
     FLUENT = ("fluent", "Advanced/Fluent")
+
 
 class JobDomain(models.TextChoices):
     ADULT = "adult", "Adult"
@@ -59,6 +67,7 @@ class JobDomain(models.TextChoices):
     TRAVEL = "travel", "Travel / Tourism"
     OTHER = "other", "Other"
 
+
 class CompanyType(models.TextChoices):
     AGENCY = "agency", _("Agency")
     OUTSOURCE = "outsource", _("Outsource")
@@ -66,11 +75,13 @@ class CompanyType(models.TextChoices):
     PRODUCT = "product", _("Product")
     STARTUP = "startup", _("Startup")
 
+
 class RemoteType(models.TextChoices):
         OFFICE = "office", _("Office Work")
         PARTLY_REMOTE = "partly_remote", _("Hybrid Remote")
         FULL_REMOTE = "full_remote", _("Full Remote")
         CANDIDATE_CHOICE = "candidate_choice", _("Office/Remote of your choice")
+
 
 class CompanyType(models.TextChoices):
     AGENCY = ("agency/freelance", "agency/freelance")
@@ -173,12 +184,24 @@ class JobPosting(models.Model):
     published = models.DateTimeField(blank=True, null=True, db_index=True)
     created = models.DateTimeField(auto_now_add=True, db_index=True)
 
+    search_vector = SearchVectorField(null=True)
+
+    class Meta:
+        indexes = [
+            GinIndex(fields=['search_vector'])
+        ]
+
+    def save(self, *args, **kwargs):
+        self.search_vector = SearchVector('position', 'long_description', 'primary_keyword', 'secondary_keyword', 'extra_keywords')
+        super().save(*args, **kwargs)
+
 
 class Recruiter(models.Model):
     email = models.EmailField(blank=False, db_index=True, unique=True)
     name = models.CharField(max_length=250, blank=False, default="")
     company_id = models.IntegerField(blank=True, null=True)
     slug = models.SlugField()
+
 
 class Company(models.Model):
     name = models.CharField(max_length=250, blank=False, default="")

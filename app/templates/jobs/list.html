@@ -15,48 +15,245 @@
     .text-clamp * {
       margin-bottom: 0;
     }
+
+    .badge-close {
+      cursor: pointer;
+      margin-left: 0.5rem;
+    }
+
+    .filter-form {
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (max-width: 991px) {
+      #jobs_list {
+        flex-direction: column-reverse;
+      }
+    }
   </style>
 
   <div class="container">
     <header class="pt-4 pb-4">
-
       <h1>Jobs on Djinni</h1>
-      <div class="mb-4">
-        <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
-            </div>
-            <div class="col-auto">
-              <button type="submit" class="btn btn-primary">Search</button>
-            </div>
-          </div>
-        </form>
-      </div>
-
+      {% if request.GET.q %}
+        <span class="badge rounded-pill bg-primary p-9">
+          Keywords: {{ request.GET.q }}
+        </span>
+      {% endif %}
+      {% if request.GET.salary_min or request.GET.salary_max %}
+        <span class="badge rounded-pill bg-primary p-9">
+          Salary: ${{ request.GET.salary_min|default:"0" }} - ${{ request.GET.salary_max|default:"∞" }}
+        </span>
+      {% endif %}
+      {% if request.GET.remote_type %}
+        {% with request.GET.remote_type as remote_type %}
+            {% if remote_type == 'office' %}
+              <span class="badge rounded-pill bg-primary p-9">
+                Remote Type: Office Work
+              </span>
+            {% elif remote_type == 'partly_remote' %}
+              <span class="badge rounded-pill bg-primary p-9">
+                Remote Type: Hybrid Remote
+              </span>
+            {% elif remote_type == 'full_remote' %}
+              <span class="badge rounded-pill bg-primary p-9">
+                Remote Type: Full Remote
+              </span>
+            {% elif remote_type == 'candidate_choice' %}
+              <span class="badge rounded-pill bg-primary p-9">
+                Remote Type: Office/Remote of your choice
+              </span>
+            {% else %}
+              <span class="badge rounded-pill bg-primary p-9">
+                Remote Type: {{ remote_type }}
+              </span>
+            {% endif %}
+          {% endwith %}
+      {% endif %}
+      {% if request.GET.country %}
+        <span class="badge rounded-pill bg-primary p-9">
+          Country: {{ request.GET.country }}
+        </span>
+      {% endif %}
+      {% if request.GET.location %}
+        <span class="badge rounded-pill bg-primary p-9">
+          City: {{ request.GET.location }}
+        </span>
+      {% endif %}
+      {% if request.GET.english_level %}
+        {% with request.GET.english_level as level %}
+            {% if level == 'no_english' %}
+              <span class="badge rounded-pill bg-primary p-9">
+                English Level: No English
+              </span>
+            {% elif level == 'basic' %}
+              <span class="badge rounded-pill bg-primary p-9">
+                English Level: Beginner/Elementary
+              </span>
+            {% elif level == 'pre' %}
+              <span class="badge rounded-pill bg-primary p-9">
+                English Level: Pre-Intermediate
+              </span>
+            {% elif level == 'intermediate' %}
+              <span class="badge rounded-pill bg-primary p-9">
+                English Level: Intermediate
+              </span>
+            {% elif level == 'upper' %}
+              <span class="badge rounded-pill bg-primary p-9">
+                English Level: Upper-Intermediate
+              </span>
+            {% elif level == 'fluent' %}
+              <span class="badge rounded-pill bg-primary p-9">
+                English Level: Advanced/Fluent
+              </span>
+            {% else %}
+              <span class="badge rounded-pill bg-primary p-9">
+                English Level: {{ level }}
+              </span>
+            {% endif %}
+          {% endwith %}
+      {% endif %}
+      {% if request.GET.experience_years %}
+        {% with request.GET.experience_years as exp %}
+            {% if exp == 'no_exp' %}
+                <span class="badge rounded-pill bg-primary p-9">
+                    Experience: No experience
+                </span>
+            {% elif exp == '1y' %}
+                <span class="badge rounded-pill bg-primary p-9">
+                    Experience: 1 year
+                </span>
+            {% elif exp == '2y' %}
+                <span class="badge rounded-pill bg-primary p-9">
+                    Experience: 2 years
+                </span>
+            {% elif exp == '3y' %}
+                <span class="badge rounded-pill bg-primary p-9">
+                    Experience: 3 years
+                </span>
+            {% elif exp == '5y' %}
+                <span class="badge rounded-pill bg-primary p-9">
+                    Experience: 5 years
+                </span>
+            {% else %}
+                <span class="badge rounded-pill bg-primary p-9">
+                    Experience: {{ exp }}
+                </span>
+            {% endif %}
+        {% endwith %}
+      {% endif %}
     </header>
 
-    <div id="jobs_list">
-      <div class="row">
-        <div class="col-sm-8">
+    <div id="jobs_list" class="row">
+      <div class="col-lg-8">
+        {% for job in jobs %}
+          <div id="job_{{job.id}}" class="mb-5">
+            <h2 class="h4 text-primary">
+              {{ job.position }}
+              {% if job.public_salary_max %}
+                <span class="text-success">to ${{job.public_salary_max}}</span>
+              {% endif %}
+              <small class="text-secondary">at {{ job.company.name }}</small>
+            </h2>
+            <div>
+              <div class="text-clamp">
+                {{ job.long_description|safe }}
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+        {% include '_paginator.html' %}
+      </div>
 
-          {% for job in jobs %}
-            <div id="job_{{job.id}}" class="mb-5">
-              <h2 class="h4 text-primary">
-                {{ job.position }}
-                {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
-                {% endif %}
-                <small class="text-secondary">at {{ job.company.name }}</small>
-              </h2>
-              <div>
-                <div class="text-clamp">
-                  {{ job.long_description|safe }}
+      <div class="col-lg-4 mb-5">
+        <div class="filter-form bg-light p-4 rounded border shadow-sm">
+          <h4 class="mb-4">Filter Jobs</h4>
+          <form method="GET" id="filterForm">
+            <div class="mb-3">
+              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
+            </div>
+            <div class="mb-3">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="salary_min">Min Salary, $</label>
+                    <input type="number" id="salary_min" name="salary_min" value="{{ request.GET.salary_min }}" class="form-control">
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="salary_max">Max Salary, $</label>
+                    <input type="number" id="salary_max" name="salary_max" value="{{ request.GET.salary_max }}" class="form-control">
+                  </div>
                 </div>
               </div>
             </div>
-          {% endfor %}
-
+            <div class="mb-3">
+              <div class="form-group">
+                <label for="remote_type">Remote Type</label>
+                <div>
+                  <div class="form-check">
+                    <input type="checkbox" id="remote_office" name="remote_type" value="office" {% if 'office' in remote_types %}checked{% endif %} class="form-check-input">
+                    <label for="remote_office" class="form-check-label">Office Work</label>
+                  </div>
+                  <div class="form-check">
+                    <input type="checkbox" id="remote_partly_remote" name="remote_type" value="partly_remote" {% if 'partly_remote' in remote_types %}checked{% endif %} class="form-check-input">
+                    <label for="remote_partly_remote" class="form-check-label">Hybrid Remote</label>
+                  </div>
+                  <div class="form-check">
+                    <input type="checkbox" id="remote_full_remote" name="remote_type" value="full_remote" {% if 'full_remote' in remote_types %}checked{% endif %} class="form-check-input">
+                    <label for="remote_full_remote" class="form-check-label">Full Remote</label>
+                  </div>
+                  <div class="form-check">
+                    <input type="checkbox" id="remote_candidate_choice" name="remote_type" value="candidate_choice" {% if 'candidate_choice' in remote_types %}checked{% endif %} class="form-check-input">
+                    <label for="remote_candidate_choice" class="form-check-label">Office/Remote of your choice</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="form-group">
+                <label for="country">Country</label>
+                <input type="text" id="country" name="country" value="{{ request.GET.country }}" class="form-control" placeholder="Ukraine">
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="form-group">
+                <label for="location">City</label>
+                <input type="text" id="location" name="location" value="{{ request.GET.location }}" class="form-control" placeholder="Kharkiv">
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="form-group">
+                <label for="english_level">English Level</label>
+                <select id="english_level" name="english_level" class="form-control">
+                  <option value="" {% if not request.GET.english_level %}selected{% endif %}>Choose your level</option>
+                  <option value="no_english" {% if request.GET.english_level == 'no_english' %}selected{% endif %}>No English</option>
+                  <option value="basic" {% if request.GET.english_level == 'basic' %}selected{% endif %}>Beginner/Elementary</option>
+                  <option value="pre" {% if request.GET.english_level == 'pre' %}selected{% endif %}>Pre-Intermediate</option>
+                  <option value="intermediate" {% if request.GET.english_level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                  <option value="upper" {% if request.GET.english_level == 'upper' %}selected{% endif %}>Upper-Intermediate</option>
+                  <option value="fluent" {% if request.GET.english_level == 'fluent' %}selected{% endif %}>Advanced/Fluent</option>
+                </select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <div class="form-group">
+                <label for="experience_years">Years of Experience</label>
+                <select id="experience_years" name="experience_years" class="form-control">
+                  <option value="" {% if not request.GET.experience_years %}selected{% endif %}>Choose experience level</option>
+                  <option value="no_exp" {% if request.GET.experience_years == 'no_exp' %}selected{% endif %}>No experience</option>
+                  <option value="1y" {% if request.GET.experience_years == '1y' %}selected{% endif %}>1 year</option>
+                  <option value="2y" {% if request.GET.experience_years == '2y' %}selected{% endif %}>2 years</option>
+                  <option value="3y" {% if request.GET.experience_years == '3y' %}selected{% endif %}>3 years</option>
+                  <option value="5y" {% if request.GET.experience_years == '5y' %}selected{% endif %}>5 years</option>
+                </select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a class="btn btn-secondary ms-2" href="{% url 'jobs_list' %}">Reset Filters</a>
+          </form>
         </div>
       </div>
     </div>
