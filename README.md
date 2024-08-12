@@ -81,20 +81,7 @@ docker compose build
 docker compose up
 ```
 
-If installation succeed you will see the following in the console:
-```
-web-1  | Django version 4.2.4, using settings 'djinnitest.settings'
-web-1  | Starting development server at http://0.0.0.0:8000/
-web-1  | Quit the server with CONTROL-C.
-```
-
-#### 4. Run migrations
-
-```
-docker compose exec web python3 app/manage.py migrate
-```
-
-#### 5. Import database  
+#### 4. Import database  
 
 See active containers list:  
 
@@ -113,6 +100,19 @@ Replace `<CONTAINER ID>` with the id of the postgres container and run the comma
 
 ```
 cat dump.sql | docker exec -i <CONTAINER ID> psql --user admin djinni_sandbox
+```
+
+#### 5. Restart the container 
+
+```
+docker compose up
+```
+
+If installation succeed you will see the following in the console:
+```
+web-1  | Django version 4.2.4, using settings 'djinnitest.settings'
+web-1  | Starting development server at http://0.0.0.0:8000/
+web-1  | Quit the server with CONTROL-C.
 ```
 
 Now open the http://0.0.0.0:8000 and you will see jobs list.
