@@ -1,4 +1,6 @@
+import time
 import logging
+
 from django.shortcuts import render
 from django.core.paginator import Paginator
 
@@ -21,12 +23,16 @@ def jobs_list(request):
     JOBS_PER_PAGE = 20
     
     query = request.GET.get('q', '')
-    
+    start_time = time.time()
+
     if query:
         job_search_service = JobSearchService(query)
         search_results = job_search_service.search_jobs()
     else:
         search_results = JobPosting.objects.all()
+
+    search_duration = time.time() - start_time
+    print(f"Search query execution time: {search_duration:.4f} seconds")
 
     job_filter = JobPostingFilter(request.GET, queryset=search_results)
     filtered_jobs = job_filter.qs

@@ -21,3 +21,4 @@ tqdm==4.66.1
 typing_extensions==4.7.1
 django-crispy-forms==2.3
 crispy-bootstrap5==2024.2
+pymemcache==4.0.0

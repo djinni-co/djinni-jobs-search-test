@@ -100,7 +100,13 @@ DATABASES = {
     }
 }
 
-
+# CACHE
+CACHES = {
+    'default': {
+        'BACKEND': "django.core.cache.backends.memcached.PyMemcacheCache",
+        'LOCATION': "cache:11211",  # The "cache" hostname matches the service name in your docker-compose.yml
+    }
+}
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
