@@ -15,37 +15,127 @@
     .text-clamp * {
       margin-bottom: 0;
     }
+
+    .form-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+
+    .form-group {
+      flex: 1 1 calc(33.333% - 10px); /* Три форми в рядок */
+      max-width: calc(33.333% - 10px);
+      box-sizing: border-box;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 2px;
+      font-size: 12px;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 4px;
+      margin-bottom: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .form-group button {
+      width: 100%;
+      padding: 6px;
+      font-size: 12px;
+    }
+
+    .form-group button:hover {
+      background-color: #0056b3;
+      border-color: #004085;
+    }
   </style>
 
   <div class="container">
     <header class="pt-4 pb-4">
-
       <h1>Jobs on Djinni</h1>
       <div class="mb-4">
         <form method="GET">
-          <div class="row">
-            <div class="col-sm-6">
-              <input type="search" name="q" value="{{ request.GET.q }}" class="form-control" placeholder="Search jobs">
+          <div class="form-container">
+            <div class="form-group">
+              {{ form.q.label_tag }}
+              {{ form.q }}
             </div>
-            <div class="col-auto">
+            <div class="form-group">
+              {{ form.primary_keyword.label_tag }}
+              {{ form.primary_keyword }}
+            </div>
+            <div class="form-group">
+              {{ form.salary_min.label_tag }}
+              {{ form.salary_min }}
+            </div>
+            <div class="form-group">
+              {{ form.position.label_tag }}
+              {{ form.position }}
+            </div>
+            <div class="form-group">
+              {{ form.secondary_keyword.label_tag }}
+              {{ form.secondary_keyword }}
+            </div>
+            <div class="form-group">
+              {{ form.salary_max.label_tag }}
+              {{ form.salary_max }}
+            </div>
+            <div class="form-group">
+              {{ form.long_description.label_tag }}
+              {{ form.long_description }}
+            </div>
+            <div class="form-group">
+              {{ form.extra_keywords.label_tag }}
+              {{ form.extra_keywords }}
+            </div>
+            <div class="form-group">
+              {{ form.remote_type.label_tag }}
+              {{ form.remote_type }}
+            </div>
+            <div class="form-group">
+              {{ form.country.label_tag }}
+              {{ form.country }}
+            </div>
+            <div class="form-group">
+              {{ form.location.label_tag }}
+              {{ form.location }}
+            </div>
+            <div class="form-group">
+              {{ form.english_level.label_tag }}
+              {{ form.english_level }}
+            </div>
+            <div class="form-group">
               <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+            <div class="form-group">
+              {{ form.company_name.label_tag }}
+              {{ form.company_name }}
+            </div>
+            <div class="form-group">
+              {{ form.experience_years.label_tag }}
+              {{ form.experience_years }}
             </div>
           </div>
         </form>
       </div>
-
     </header>
 
     <div id="jobs_list">
       <div class="row">
         <div class="col-sm-8">
-
           {% for job in jobs %}
-            <div id="job_{{job.id}}" class="mb-5">
+            <div id="job_{{ job.id }}" class="mb-5">
               <h2 class="h4 text-primary">
-                {{ job.position }}
+                <a href="{% url 'job_posting_detail' job.id %}">{{ job.position }}</a>
                 {% if job.public_salary_max %}
-                  <span class="text-success">to ${{job.public_salary_max}}</span>
+                  <span class="text-success">to ${{ job.public_salary_max }}</span>
                 {% endif %}
                 <small class="text-secondary">at {{ job.company.name }}</small>
               </h2>
@@ -56,9 +146,26 @@
               </div>
             </div>
           {% endfor %}
-
         </div>
+      </div>
+      <div class="pagination">
+        <span class="step-links">
+          {% if page_obj.has_previous %}
+            <a href="?page=1&{{ request.GET.urlencode }}">First</a>
+            <a href="?page={{ page_obj.previous_page_number }}&{{ request.GET.urlencode }}">Previous</a>
+          {% endif %}
+
+          <span class="current">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+          </span>
+
+          {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&{{ request.GET.urlencode }}">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}&{{ request.GET.urlencode }}">Last</a>
+          {% endif %}
+        </span>
       </div>
     </div>
   </div>
+
 {% endblock content %}
