@@ -1,0 +1,322 @@
+<style>
+    .btn-default {
+        border-color: grey;
+    }
+
+    .scrollable-buttons-container {
+        max-height: 70vh;
+        overflow-y: auto;
+    }
+
+    .custom-button-container {
+        border-top: 1px solid white;
+        padding: 10px;
+        z-index: 1000;
+        display: flex;
+        gap: 0;
+        position: fixed;
+        bottom: 0;
+        left: 64%;
+        right: 0;
+        background-color: white;
+    }
+
+    .custom-button-container .col {
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex: 1;
+    }
+
+    .custom-button-container .btn {
+        margin: 0;
+        width: 40%;
+        border-radius: 0;
+        flex: 1;
+    }
+
+    .custom-button-container .btn-default {
+        background-color: #e9ecef;
+        color: #495057;
+        border: 1px solid #ced4da;
+    }
+
+    .custom-button-container .btn-default:hover {
+        background-color: #d6d9db;
+        border-color: #adb5bd;
+    }
+
+    .custom-button-container .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .custom-button-container .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+
+    .dropdown-menu {
+        max-height: 300px;
+        overflow-y: auto;
+    }
+</style>
+
+<form method="get">
+  <div class="container mt-3 scrollable-buttons-container">
+    <div class="row g-0 additional-buttons" id="additionalButtons">
+      <h2>Main keywords:</h2>
+      {% for primary_keyword in primary_keywords %}
+        <div class="col-auto">
+          <button type="button" class="btn btn-outline-primary btn-sm" id="button{{ forloop.counter }}"
+                  onclick="toggleButton(this, '{{ primary_keyword }}')">
+            {{ primary_keyword }}
+          </button>
+        </div>
+      {% endfor %}
+      <h2>Salary Range:</h2>
+      <div class="row">
+        <div class="col-auto">
+          <input type="range" class="form-range" id="salaryRange" min="0" max="{{ salary_max }}"
+                 value="{% if request.GET.salary_value %}{{ request.GET.salary_value }}{% else %}0{% endif %}"
+                 step="50">
+        </div>
+        <div class="col-auto">
+          <span id="salaryValue">{% if request.GET.salary_value %}{{ request.GET.salary_value }}{% else %}
+            {{ salary_min }}{% endif %}</span>
+        </div>
+      </div>
+      <h2>Remote types:</h2>
+      {% for remote_type in remote_types %}
+        <div class="form-check">
+          <input class="form-check-input" type="checkbox" name="remote_type" value="{{ remote_type }}"
+                 id="flexCheck{{ forloop.counter }}" onclick="selectRemote(this)"
+                 {% if request.GET.remote_type == remote_type %}checked{% endif %}>
+          <label class="form-check-label" for="flexCheck{{ forloop.counter }}">
+            {{ remote_type }}
+          </label>
+        </div>
+      {% endfor %}
+      <h2>Country:</h2>
+      <div class="dropdown">
+        <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown"
+                aria-expanded="false">
+          Select Country
+        </button>
+        <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu2">
+          {% for county in counties %}
+            <button class="dropdown-item" type="button" onclick="selectCountry('{{ county }}')">{{ county }}</button>
+          {% endfor %}
+        </div>
+        {% if request.GET.country and cities %}
+          <h2>City:</h2>
+          <div class="dropdown">
+            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu3" data-bs-toggle="dropdown"
+                    aria-expanded="false">
+              Select City
+            </button>
+            <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu3">
+              {% for city in cities %}
+                <button class="dropdown-item" type="button"
+                        onclick="selectCity('{{ city }}')">{{ city }}</button>
+              {% endfor %}
+            </div>
+          </div>
+        {% elif not request.GET.country %}
+          <h5>To select city you must select a country</h5>
+        {% else %}
+          <h5>Cities for this work are not specified</h5>
+        {% endif %}
+        <h2>English level:</h2>
+        <div class="dropdown">
+          <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu4" data-bs-toggle="dropdown"
+                  aria-expanded="false">
+            Select English level
+          </button>
+          <div class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenu4">
+            {% for english_level in english_levels %}
+              <button class="dropdown-item" type="button"
+                      onclick="selectEnglish('{{ english_level }}')">{{ english_level }}</button>
+            {% endfor %}
+          </div>
+          <h2>Experience years:</h2>
+          {% for experience_year in experience_years %}
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" name="experience_year" value="{{ experience_year }}"
+                     id="experienceCheck{{ forloop.counter }}" onclick="selectExperience(this)"
+                     {% if request.GET.experience_year == experience_year %}checked{% endif %}>
+              <label class="form-check-label" for="experienceCheck{{ forloop.counter }}">
+                {{ experience_year }}
+              </label>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    {% if request.GET.q %}
+      <input type="hidden" name="q" value="{{ request.GET.q }}">
+    {% endif %}
+    <input type="hidden" name="primary_keyword" id="selectedKeyword" value="{{ request.GET.primary_keyword }}">
+    <input type="hidden" name="salary_value" id="salaryValueHidden" value="{{ request.GET.salary_value }}">
+    <input type="hidden" name="country" id="selectedCountry" value="{{ request.GET.country }}">
+    <input type="hidden" name="location" id="selectedLocation" value="{{ request.GET.location }}">
+    <input type="hidden" name="english_level" id="selectedEnglish" value="{{ request.GET.english_level }}">
+    <input type="hidden" name="remote_type" id="selectedRemoteType" value="{{ request.GET.remote_type }}">
+    <input type="hidden" name="experience_year" id="selectedExperienceYear" value="{{ request.GET.experience_year }}">
+
+    <div class="custom-button-container border-top p-3">
+      <div class="row w-100">
+        <div class="col px-2">
+          <button type="button" class="btn btn-block btn-default" onclick="cancelSelection()">Cancel</button>
+        </div>
+        <div class="col px-2">
+          <input type="submit" class="btn btn-block btn-primary" value="Submit">
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var primaryKeyword = "{{ request.GET.primary_keyword }}";
+        var salaryValue = "{{ request.GET.salary_value }}";
+        var selectedCountry = "{{ request.GET.country }}";
+        var selectedLocation = "{{ request.GET.location }}";
+        var selectedEnglish = "{{ request.GET.english_level }}";
+        var selectedRemoteType = "{{ request.GET.remote_type }}";
+        var selectedExperienceYear = "{{ request.GET.experience_year }}";
+
+        if (primaryKeyword) {
+            var buttons = document.querySelectorAll('.btn-outline-primary');
+            buttons.forEach(function (button) {
+                if (button.textContent.trim() === primaryKeyword) {
+                    button.classList.remove('btn-outline-primary');
+                    button.classList.add('btn-primary');
+                    document.getElementById('selectedKeyword').value = primaryKeyword;
+                }
+            });
+        }
+
+        var salaryRange = document.getElementById('salaryRange');
+        var salaryValueSpan = document.getElementById('salaryValue');
+        var salaryValueHidden = document.getElementById('salaryValueHidden');
+
+        if (salaryValue === "" || salaryValue === null) {
+            salaryValue = 0;
+        }
+
+        salaryRange.value = salaryValue;
+        salaryValueSpan.textContent = salaryValue + "+";
+
+        salaryRange.addEventListener('input', function () {
+            salaryValueSpan.textContent = salaryRange.value + "+";
+            salaryValueHidden.value = salaryRange.value;
+        });
+
+        if (selectedCountry) {
+            document.getElementById('dropdownMenu2').textContent = selectedCountry;
+            document.getElementById('selectedCountry').value = selectedCountry;
+        }
+        if (selectedLocation) {
+            document.getElementById('dropdownMenu3').textContent = selectedLocation;
+            document.getElementById('selectedLocation').value = selectedLocation;
+        }
+        if (selectedEnglish) {
+            document.getElementById('dropdownMenu4').textContent = selectedEnglish;
+            document.getElementById('selectedEnglish').value = selectedEnglish;
+        }
+        if (selectedRemoteType) {
+            var remoteCheckboxes = document.querySelectorAll('input[name="remote_type"]');
+            remoteCheckboxes.forEach(function (checkbox) {
+                if (checkbox.value === selectedRemoteType) {
+                    checkbox.checked = true;
+                }
+            });
+            document.getElementById('selectedRemoteType').value = selectedRemoteType;
+        }
+        if (selectedExperienceYear) {
+            var experienceCheckboxes = document.querySelectorAll('input[name="experience_year"]');
+            experienceCheckboxes.forEach(function (checkbox) {
+                if (checkbox.value === selectedExperienceYear) {
+                    checkbox.checked = true;
+                }
+            });
+            document.getElementById('selectedExperienceYear').value = selectedExperienceYear;
+        }
+    });
+
+    function toggleButton(button, keyword) {
+        var selectedKeywordInput = document.getElementById('selectedKeyword');
+
+        if (button.classList.contains('btn-primary')) {
+            button.classList.remove('btn-primary');
+            button.classList.add('btn-outline-primary');
+            selectedKeywordInput.value = '';
+        } else {
+            var buttons = document.getElementsByClassName('btn');
+            for (var i = 0; i < buttons.length; i++) {
+                buttons[i].classList.remove('btn-primary');
+                buttons[i].classList.add('btn-outline-primary');
+            }
+
+            button.classList.remove('btn-outline-primary');
+            button.classList.add('btn-primary');
+            selectedKeywordInput.value = keyword;
+        }
+    }
+
+    function cancelSelection() {
+        var form = document.querySelector('form');
+        var inputs = form.querySelectorAll('input[type="hidden"], input[type="text"], input[type="range"], input:checked');
+        inputs.forEach(function (input) {
+            input.value = '';
+            if (input.type === 'checkbox') {
+                input.checked = false;
+            }
+        });
+
+        var dropdowns = document.querySelectorAll('.dropdown-toggle');
+        dropdowns.forEach(function (dropdown) {
+            dropdown.textContent = dropdown.getAttribute('aria-labelledby');
+        });
+
+        form.action = '/';
+        form.submit();
+    }
+
+    function selectRemote(checkbox) {
+        var checkboxes = document.querySelectorAll('input[name="remote_type"]');
+        checkboxes.forEach(function (cb) {
+            if (cb !== checkbox) {
+                cb.checked = false;
+            }
+        });
+        document.getElementById('selectedRemoteType').value = checkbox.checked ? checkbox.value : '';
+    }
+
+    function selectCountry(country) {
+        document.getElementById('dropdownMenu2').textContent = country;
+        document.getElementById('selectedCountry').value = country;
+    }
+
+    function selectCity(city) {
+        document.getElementById('dropdownMenu3').textContent = city;
+        document.getElementById('selectedLocation').value = city;
+    }
+
+    function selectEnglish(level) {
+        document.getElementById('dropdownMenu4').textContent = level;
+        document.getElementById('selectedEnglish').value = level;
+    }
+
+    function selectExperience(checkbox) {
+        var checkboxes = document.querySelectorAll('input[name="experience_year"]');
+        checkboxes.forEach(function (cb) {
+            if (cb !== checkbox) {
+                cb.checked = false;
+            }
+        });
+        document.getElementById('selectedExperienceYear').value = checkbox.checked ? checkbox.value : '';
+    }
+</script>
